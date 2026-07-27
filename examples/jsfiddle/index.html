@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open newsflash-feed in JSFiddle</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, sans-serif;
+        max-width: 44rem;
+        margin: 0 auto;
+        padding: 4rem 1.5rem;
+        line-height: 1.55;
+        color: #16181d;
+        background: #fbfbfc;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          color: #e8eaed;
+          background: #0d0f12;
+        }
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        padding: 0.6rem 1.25rem;
+        border-radius: 8px;
+        border: 0;
+        background: #1d4ed8;
+        color: #fff;
+        cursor: pointer;
+      }
+      button[disabled] {
+        opacity: 0.5;
+        cursor: default;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.9em;
+      }
+      #status {
+        color: #6b7280;
+        font-size: 0.9rem;
+        min-height: 1.4em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Open in JSFiddle</h1>
+    <p>
+      Loads the <code>&lt;newsflash-feed&gt;</code> demo into a fresh JSFiddle:
+      five layouts, a theme switcher, and the component pulled from a CDN. No
+      JSFiddle account needed — save or fork it there only if you want to keep
+      your changes.
+    </p>
+
+    <p><button id="go" disabled>Loading sources…</button></p>
+    <p id="status"></p>
+
+    <!--
+      JSFiddle has no API for creating a persistent fiddle without an account,
+      and its GitHub-gist import no longer loads anything. What does work is
+      POSTing the panels to its prefill endpoint, which opens a populated
+      editor. So this page fetches the demo's three panels from the repository
+      and posts them.
+    -->
+    <form
+      id="form"
+      method="post"
+      action="https://jsfiddle.net/api/post/library/pure/"
+      target="_blank"
+      hidden
+    >
+      <textarea name="html"></textarea>
+      <textarea name="css"></textarea>
+      <textarea name="js"></textarea>
+      <input name="resources" />
+      <input name="title" />
+      <input name="description" />
+      <input name="wrap" value="b" />
+      <input name="normalize_css" value="no" />
+    </form>
+
+    <script type="module">
+      const BASE =
+        'https://raw.githubusercontent.com/Qlibr/newsflash/main/examples/jsfiddle/';
+      const CDN =
+        'https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.1/dist/newsflash-feed.standalone.js';
+
+      const form = document.getElementById('form');
+      const button = document.getElementById('go');
+      const status = document.getElementById('status');
+
+      try {
+        const [html, css, js] = await Promise.all(
+          ['demo.html', 'demo.css', 'demo.js'].map((f) =>
+            fetch(BASE + f).then((r) => {
+              if (!r.ok) throw new Error(`${f}: HTTP ${r.status}`);
+              return r.text();
+            })
+          )
+        );
+
+        form.html.value = html;
+        form.css.value = css;
+        form.js.value = js;
+        form.resources.value = CDN;
+        form.title.value = 'newsflash-feed — five RSS layouts from one web component';
+        form.description.value =
+          'Switch layout and theme with the buttons; only attributes change. Feed data is inlined, so it runs with no network request.';
+
+        button.disabled = false;
+        button.textContent = 'Open in JSFiddle →';
+        button.addEventListener('click', () => {
+          status.textContent = 'Opening JSFiddle in a new tab…';
+          form.submit();
+        });
+      } catch (error) {
+        button.textContent = 'Could not load sources';
+        status.textContent = `${error.message}. The panels are in examples/jsfiddle/ — paste them into jsfiddle.net manually, and add the component as an external resource: ${CDN}`;
+      }
+    </script>
+  </body>
+</html>

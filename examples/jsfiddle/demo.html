@@ -1,0 +1,83 @@
+<h1>&lt;newsflash-feed&gt;</h1>
+<p class="lede">
+  An RSS feed rendered by one web component. The buttons only change
+  attributes — the markup never changes.
+</p>
+
+<div class="controls">
+  <span>Layout</span>
+  <button data-layout="cards" aria-pressed="true">cards</button>
+  <button data-layout="grid" aria-pressed="false">grid</button>
+  <button data-layout="list" aria-pressed="false">list</button>
+  <button data-layout="magazine" aria-pressed="false">magazine</button>
+  <button data-layout="ticker" aria-pressed="false">ticker</button>
+  <span>Theme</span>
+  <button data-theme="auto" aria-pressed="true">auto</button>
+  <button data-theme="light" aria-pressed="false">light</button>
+  <button data-theme="dark" aria-pressed="false">dark</button>
+</div>
+
+<!--
+  Data is inlined as a JSON child, so this fiddle renders with no network
+  request. Swap it for src="https://your-site/feed.xml" to fetch a real feed —
+  same-origin, or through a proxy. See the README.
+-->
+<newsflash-feed id="demo" layout="cards" columns="3" limit="6" sources>
+  <script type="application/json" slot="data">
+    {
+      "title": "Newsflash Sample",
+      "items": [
+        {
+          "title": "Harbour cranes go quiet as the night shift ends",
+          "link": "https://example.com/harbour-cranes",
+          "date": "2026-07-27T06:12:00+02:00",
+          "image": "https://picsum.photos/seed/nf1/800/450",
+          "excerpt": "The last container came off the deck just after five. What follows is the hour nobody photographs, when the terminal belongs to the gulls.",
+          "source": "Harbour Weekly"
+        },
+        {
+          "title": "A small library of forgotten map projections",
+          "link": "https://example.com/projections",
+          "date": "2026-07-26T18:40:00+02:00",
+          "image": "https://picsum.photos/seed/nf2/800/450",
+          "excerpt": "Between Mercator and Peters sit two hundred attempts nobody adopted. Some of them are beautiful, and one of them is nearly correct.",
+          "source": "Cartographic"
+        },
+        {
+          "title": "Why your RSS reader shows the wrong date",
+          "link": "https://example.com/rss-dates",
+          "date": "2026-07-25T09:00:00+02:00",
+          "image": "https://picsum.photos/seed/nf3/800/450",
+          "excerpt": "RFC 822, RFC 3339, and a decade of publishers splitting the difference. A short field guide to timestamps that lie.",
+          "source": "Feed Notes"
+        },
+        {
+          "title": "The last independent print shop on the canal",
+          "link": "https://example.com/print-shop",
+          "date": "2026-07-24T11:25:00+02:00",
+          "image": "https://picsum.photos/seed/nf4/800/450",
+          "excerpt": "Four presses, one apprentice, and a lease that runs out in March. The owner is not worried, which is itself worth reporting.",
+          "source": "Stadsblad"
+        },
+        {
+          "title": "Field recordings from a decommissioned lighthouse",
+          "link": "https://example.com/lighthouse",
+          "date": "2026-07-22T20:05:00+02:00",
+          "image": "https://picsum.photos/seed/nf5/800/450",
+          "excerpt": "Thirty hours of wind, one unexplained bell, and a foghorn that has not been connected to anything since 1998.",
+          "source": "Ambient Log"
+        },
+        {
+          "title": "Reading the weather from a hundred year old ledger",
+          "link": "https://example.com/ledger",
+          "date": "2026-07-20T08:15:00+02:00",
+          "image": "https://picsum.photos/seed/nf6/800/450",
+          "excerpt": "A grain merchant's daily notes turn out to be the most complete rainfall record in the province, kept entirely by accident.",
+          "source": "Archive Quarterly"
+        }
+      ]
+    }
+  </script>
+</newsflash-feed>
+
+<pre class="snippet" id="snippet"></pre>

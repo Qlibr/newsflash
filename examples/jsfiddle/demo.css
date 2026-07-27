@@ -1,0 +1,110 @@
+/* Page chrome only — the feed styles itself.
+   Restyle it from here with --nf-* properties and ::part(). */
+
+:root {
+  color-scheme: light dark;
+  --page: #fbfbfc;
+  --ink: #16181d;
+  --sub: #6b7280;
+  --line: #e3e6ea;
+  --chip: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0d0f12;
+    --ink: #e8eaed;
+    --sub: #9aa2af;
+    --line: #262a31;
+    --chip: #16181d;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 1.5rem;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--page);
+  color: var(--ink);
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.35rem;
+}
+
+.lede {
+  color: var(--sub);
+  margin: 0 0 1.5rem;
+  max-width: 60ch;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem 0.875rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--chip);
+  margin-bottom: 1.5rem;
+}
+
+.controls span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--sub);
+}
+
+button {
+  font: inherit;
+  font-size: 0.8125rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: currentColor;
+}
+
+button[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--page);
+  border-color: var(--ink);
+}
+
+button:focus-visible {
+  outline: 2px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.snippet {
+  margin: 1.5rem 0 0;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--chip);
+  overflow-x: auto;
+  font-size: 0.8125rem;
+  white-space: pre;
+}
+
+/* Try uncommenting these — they reach inside the shadow root.
+newsflash-feed {
+  --nf-accent: #b8235a;
+  --nf-radius: 2px;
+  --nf-font: Georgia, serif;
+}
+newsflash-feed::part(title) {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+*/
