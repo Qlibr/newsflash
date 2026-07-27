@@ -91,6 +91,15 @@ component from a CDN — nothing installed, nothing compiled — with layout and
 theme switchers and a live-feed toggle. It renders from inlined JSON by
 default, so it works with no network access to a feed at all.
 
+**Other playgrounds**, none needing an account:
+
+| | |
+|---|---|
+| Live, no setup | [raw.githack.com/Qlibr/newsflash/main/examples/replit/index.html](https://raw.githack.com/Qlibr/newsflash/main/examples/replit/index.html) |
+| StackBlitz | [stackblitz.com/github/Qlibr/newsflash](https://stackblitz.com/github/Qlibr/newsflash) |
+| CodeSandbox | [codesandbox.io/s/github/Qlibr/newsflash](https://codesandbox.io/s/github/Qlibr/newsflash) |
+| JSFiddle | `examples/jsfiddle/` — panels plus a launcher, see its README |
+
 | Entry | Lit | Runs under Node | Use for |
 |---|---|---|---|
 | `@qlibr/newsflash-feed` | external | yes | bundlers, npm consumers |
@@ -720,6 +729,7 @@ wordpress/newsflash-rss/  the plugin
 examples/
   ReactExample.jsx        React 19 and React 18 usage
   replit/                 zero-install CDN demo with layout/theme switchers
+  jsfiddle/               JSFiddle panels + prefill launcher
   hosted-proxies.html     five data sources side by side, live
   cloudflare-worker.js    allowlisted edge proxy
   feed-proxy.mjs          minimal Node proxy
