@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-wp/
 wordpress/newsflash-rss/assets/
 .env
 *.log

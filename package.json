@@ -32,6 +32,7 @@
     "build:esm": "vite build",
     "build:standalone": "vite build --mode standalone",
     "preview": "vite preview",
+    "build:wp-zip": "node scripts/build-wp-zip.mjs",
     "prepublishOnly": "npm run build"
   },
   "keywords": [
@@ -65,6 +66,7 @@
     "lit": "^3.3.0"
   },
   "devDependencies": {
+    "@wordpress/env": "^11.11.0",
     "vite": "^7.0.0"
   }
 }

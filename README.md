@@ -673,6 +673,20 @@ add_filter( 'newsflash_shortcode_defaults', function ( $defaults ) {
 add_filter( 'newsflash_enable_rest', '__return_false' );
 ```
 
+### Publishing to the plugin directory
+
+The plugin is packaged for WordPress.org: `wordpress/newsflash-rss/readme.txt`
+is the directory listing, `wordpress/assets/` holds the icon, banner and
+screenshots, and `npm run build:wp-zip` writes a submittable
+`dist-wp/newsflash-rss-<version>.zip` — refusing to package when the version in
+the header, `NEWSFLASH_VERSION`, `package.json` and the readme's `Stable tag`
+disagree. Steps and SVN commands are in
+[`wordpress/RELEASING.md`](wordpress/RELEASING.md).
+
+`.wp-env.json` installs the official
+[Plugin Check](https://wordpress.org/plugins/plugin-check/) plugin next to this
+one, so `npx wp-env start` gives you the same checker the reviewers run.
+
 ### Rendering it from PHP without the shortcode
 
 ```php
@@ -733,9 +747,13 @@ src/                      the web component (Lit)
   newsflash-feed.js       element, fetching, normalization
   styles.js               design tokens + the five layouts
   format.js               date/text/URL helpers, RSS/Atom parser
-wordpress/newsflash-rss/  the plugin
-  newsflash-rss.php       bootstrap + asset registration
-  includes/               feed fetching, shortcode, optional REST route
+wordpress/
+  newsflash-rss/          the plugin — this directory is what ships
+    newsflash-rss.php     bootstrap + asset registration
+    includes/             feed fetching, shortcode, optional REST route
+    readme.txt            the WordPress.org listing
+  assets/                 icon, banner, screenshots (SVN assets/, not the zip)
+  RELEASING.md            submission and SVN steps
 examples/
   ReactExample.jsx        React 19 and React 18 usage
   replit/                 zero-install CDN demo with layout/theme switchers

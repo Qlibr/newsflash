@@ -18,8 +18,12 @@ defined( 'ABSPATH' ) || exit;
 
 class Newsflash_REST {
 
-	const NAMESPACE = 'newsflash/v1';
-	const ROUTE     = '/feed';
+	/**
+	 * Not named NAMESPACE: it is legal as a class constant in PHP 7+, but it
+	 * trips static analysers that treat the reserved word as a syntax error.
+	 */
+	const REST_NAMESPACE = 'newsflash/v1';
+	const ROUTE          = '/feed';
 
 	public static function init() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_routes' ) );
@@ -46,7 +50,7 @@ class Newsflash_REST {
 		}
 
 		register_rest_route(
-			self::NAMESPACE,
+			self::REST_NAMESPACE,
 			self::ROUTE,
 			array(
 				'methods'             => WP_REST_Server::READABLE,
@@ -100,7 +104,7 @@ class Newsflash_REST {
 				'limit' => (int) $limit,
 				'key'   => self::sign( $feed ),
 			),
-			rest_url( self::NAMESPACE . self::ROUTE )
+			rest_url( self::REST_NAMESPACE . self::ROUTE )
 		);
 	}
 

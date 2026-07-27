@@ -1,6 +1,9 @@
 {
   "$schema": "https://schemas.wp.org/trunk/wp-env.json",
-  "plugins": ["./wordpress/newsflash-rss"],
+  "plugins": [
+    "./wordpress/newsflash-rss",
+    "https://downloads.wordpress.org/plugin/plugin-check.zip"
+  ],
   "port": 8889,
   "testsPort": 8890,
   "config": {

@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="772" height="250" viewBox="0 0 772 250">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2563eb"/>
+      <stop offset="1" stop-color="#101d5c"/>
+    </linearGradient>
+    <linearGradient id="shot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#93b4fd"/>
+      <stop offset="1" stop-color="#5b8def"/>
+    </linearGradient>
+    <clipPath id="cardclip"><rect x="0" y="0" width="88" height="164" rx="8"/></clipPath>
+  </defs>
+
+  <rect width="772" height="250" fill="url(#bg)"/>
+
+  <!-- Mark -->
+  <g transform="translate(44,34) scale(0.2)">
+    <g fill="none" stroke="#ffffff" stroke-width="19" stroke-linecap="round">
+      <path d="M56 146 A54 54 0 0 1 110 200"/>
+      <path d="M56 98 A102 102 0 0 1 158 200"/>
+    </g>
+    <circle cx="60" cy="196" r="15" fill="#ffffff"/>
+    <path d="M186 40 L136 112 L164 112 L150 178 L204 100 L174 100 Z"
+          fill="#fbbf24" transform="translate(10,-14)"/>
+  </g>
+
+  <text x="98" y="72" font-family="DejaVu Sans" font-weight="bold" font-size="34"
+        fill="#ffffff" letter-spacing="-0.5">Newsflash RSS</text>
+
+  <text x="46" y="126" font-family="DejaVu Sans" font-size="17" fill="#c7d8ff">
+    Any RSS or Atom feed, rendered on your server
+  </text>
+  <text x="46" y="152" font-family="DejaVu Sans" font-size="17" fill="#c7d8ff">
+    in five themable layouts — from one shortcode.
+  </text>
+
+  <g font-family="DejaVu Sans" font-size="13" fill="#9fbcff">
+    <text x="46" y="200">list &#183; grid &#183; cards &#183; magazine &#183; ticker</text>
+  </g>
+
+  <!-- A miniature of the cards layout. -->
+  <g transform="translate(460,43)">
+    <g>
+      <rect x="0" y="0" width="88" height="164" rx="8" fill="#ffffff"/>
+      <g clip-path="url(#cardclip)"><rect x="0" y="0" width="88" height="52" fill="url(#shot)"/></g>
+      <rect x="10" y="66" width="64" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="79" width="52" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="97" width="68" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="108" width="60" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="119" width="64" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="141" width="34" height="5" rx="2.5" fill="#dde3ec"/>
+    </g>
+    <g transform="translate(100,0)">
+      <rect x="0" y="0" width="88" height="164" rx="8" fill="#ffffff"/>
+      <g clip-path="url(#cardclip)"><rect x="0" y="0" width="88" height="52" fill="#fbbf24"/></g>
+      <rect x="10" y="66" width="58" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="79" width="66" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="97" width="64" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="108" width="68" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="119" width="46" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="141" width="34" height="5" rx="2.5" fill="#dde3ec"/>
+    </g>
+    <g transform="translate(200,0)">
+      <rect x="0" y="0" width="88" height="164" rx="8" fill="#ffffff"/>
+      <g clip-path="url(#cardclip)"><rect x="0" y="0" width="88" height="52" fill="#4a5a75"/></g>
+      <rect x="10" y="66" width="66" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="79" width="44" height="7" rx="3.5" fill="#2b3444"/>
+      <rect x="10" y="97" width="66" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="108" width="58" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="119" width="62" height="5" rx="2.5" fill="#c9d1dd"/>
+      <rect x="10" y="141" width="34" height="5" rx="2.5" fill="#dde3ec"/>
+    </g>
+  </g>
+</svg>
