@@ -643,8 +643,18 @@ add_filter( 'newsflash_enable_rest', '__return_false' );
 When the REST route is enabled it is public — feeds render for logged-out
 visitors — so it must not become an open proxy. The shortcode signs each feed
 URL with an HMAC derived from the site salt, and the handler refuses anything
-it did not sign. URLs also pass `wp_http_validate_url()`, which blocks loopback
-and private ranges. Only URLs an editor put on a page are ever fetchable.
+it did not sign. Only URLs an editor put on a page are ever fetchable.
+
+A signature alone is not an SSRF defence, though: whoever writes the shortcode
+still chooses the URL. So every host is resolved and each resulting address is
+checked against PHP's private **and reserved** ranges before fetching.
+`wp_http_validate_url()` on its own is not enough — it blocks loopback and
+RFC1918 but permits `169.254.0.0/16`, which is where cloud instance metadata
+(`169.254.169.254`) and ECS task credentials (`169.254.170.2`) live.
+
+This does not close the DNS-rebinding window: the name is resolved for the
+check and again by cURL for the request. Pinning would need a per-request
+`CURLOPT_RESOLVE`, which `WP_Http` does not expose.
 
 ### Filters
 
@@ -711,7 +721,8 @@ scrollable strip instead.
 - Dates are formatted from whatever string the feed supplied. Non-ISO formats
   (RFC 822, or rss2json's `"2026-07-27 06:18:10"`) rely on the browser's
   `Date` parsing and are interpreted as local time.
-- The WordPress plugin has not been exercised against a running install.
+- DNS rebinding can still defeat the proxy's SSRF check, as described under
+  [Security](#security).
 
 ---
 

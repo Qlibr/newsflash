@@ -33,9 +33,7 @@ class Newsflash_Feed {
 		}
 
 		foreach ( $urls as $url ) {
-			// Blocks non-http(s) schemes plus loopback and private ranges —
-			// the SSRF guard that a URL signature alone does not provide.
-			if ( ! wp_http_validate_url( $url ) ) {
+			if ( ! self::is_fetchable( $url ) ) {
 				return new WP_Error(
 					'newsflash_invalid_url',
 					/* translators: %s: the rejected URL. */
@@ -73,6 +71,92 @@ class Newsflash_Feed {
 			$urls = explode( ',', (string) $urls );
 		}
 		return array_values( array_filter( array_map( 'trim', $urls ) ) );
+	}
+
+	/**
+	 * Whether a URL is safe for the server to fetch.
+	 *
+	 * wp_http_validate_url() rejects non-http(s) schemes, loopback and the
+	 * RFC1918 private ranges, but it permits 169.254.0.0/16 — the link-local
+	 * range holding cloud instance metadata (169.254.169.254) and ECS task
+	 * credentials (169.254.170.2). A signed URL is still attacker-influenced
+	 * (anyone who can place a shortcode chooses it), so relying on
+	 * wp_http_validate_url() alone leaves a blind SSRF into the metadata
+	 * service. Every resolved address is therefore checked against PHP's
+	 * private *and* reserved ranges, which do cover link-local.
+	 *
+	 * Note this cannot close the DNS-rebinding window: the name is resolved
+	 * here and again by cURL when the request is made. Pinning would require
+	 * a per-request CURLOPT_RESOLVE, which WP_Http does not expose.
+	 *
+	 * @param string $url
+	 * @return bool
+	 */
+	private static function is_fetchable( $url ) {
+		if ( ! wp_http_validate_url( $url ) ) {
+			return false;
+		}
+
+		$host = wp_parse_url( $url, PHP_URL_HOST );
+		if ( ! $host ) {
+			return false;
+		}
+
+		$addresses = self::resolve( trim( $host, '[]' ) );
+		if ( empty( $addresses ) ) {
+			return false;
+		}
+
+		foreach ( $addresses as $address ) {
+			$public = filter_var(
+				$address,
+				FILTER_VALIDATE_IP,
+				FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE
+			);
+			if ( ! $public ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * Every address a host resolves to, so a name pointing at both a public
+	 * and an internal address is rejected rather than sampled.
+	 *
+	 * @param string $host Hostname or IP literal.
+	 * @return string[]
+	 */
+	private static function resolve( $host ) {
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return array( $host );
+		}
+
+		$addresses = array();
+
+		$records = @dns_get_record( $host, DNS_A | DNS_AAAA ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( is_array( $records ) ) {
+			foreach ( $records as $record ) {
+				if ( ! empty( $record['ip'] ) ) {
+					$addresses[] = $record['ip'];
+				}
+				if ( ! empty( $record['ipv6'] ) ) {
+					$addresses[] = $record['ipv6'];
+				}
+			}
+		}
+
+		// dns_get_record can be unavailable or blocked; fall back to the
+		// resolver gethostbyname uses rather than failing open.
+		if ( empty( $addresses ) ) {
+			$ipv4 = gethostbyname( $host );
+			if ( $ipv4 && $ipv4 !== $host ) {
+				$addresses[] = $ipv4;
+			}
+		}
+
+		return $addresses;
 	}
 
 	/**

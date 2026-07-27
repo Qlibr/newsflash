@@ -3,3 +3,9 @@ dist/
 wordpress/newsflash-rss/assets/
 .env
 *.log
+
+# wp-env local WordPress for plugin testing
+.wp-env.override.json
+
+# Playwright MCP scratch output
+.playwright-mcp/
