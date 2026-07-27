@@ -1,0 +1,77 @@
+# Publishes @qlibr/newsflash-feed to npm using trusted publishing (OIDC).
+#
+# No NPM_TOKEN is involved: npm exchanges GitHub's OIDC token for a
+# short-lived publish credential, so there is no long-lived secret to leak or
+# rotate. Publishes are signed with provenance, linking the tarball on npm to
+# the exact commit and workflow run that produced it.
+#
+# One-time setup on npmjs.com, at
+# https://www.npmjs.com/package/@qlibr/newsflash-feed/access
+#   Trusted Publisher -> GitHub Actions
+#     Repository:        Qlibr/newsflash
+#     Workflow filename: publish.yml     <- must match this file's name exactly
+#
+# The package must already exist on npm for that settings page to exist, so
+# the very first publish has to be done by hand (`npm publish` with 2FA).
+# Every release after that runs from here.
+
+name: Publish
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# Never let two publishes race for the same version.
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest # trusted publishing does not support self-hosted runners
+
+    permissions:
+      contents: read
+      id-token: write # lets the runner mint the OIDC token npm exchanges
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Trusted publishing requires Node >= 22.14.0.
+          node-version: 22
+          cache: npm
+          # `registry-url` is deliberately NOT set. It makes setup-node write
+          # an empty `_authToken=` line into .npmrc; npm then believes auth is
+          # already configured, never starts the OIDC exchange, and the
+          # publish fails with a confusing 404/ENEEDAUTH.
+
+      # Ubuntu's Node 22 ships npm 10.x; trusted publishing needs >= 11.5.1.
+      - name: Upgrade npm
+        run: npm install -g npm@latest
+
+      - run: npm ci
+
+      - name: Guard against a tag/version mismatch
+        if: github.event_name == 'release'
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p 'require("./package.json").version')"
+          if [ "$tag" != "$pkg" ]; then
+            echo "::error::Release tag $GITHUB_REF_NAME implies $tag but package.json says $pkg"
+            exit 1
+          fi
+          echo "Publishing version $pkg"
+
+      - run: npm run build
+
+      # --provenance is passed explicitly: it is documented as automatic under
+      # OIDC, but in practice the flag is what reliably produces the
+      # attestation.
+      - name: Publish
+        run: npm publish --provenance --access public

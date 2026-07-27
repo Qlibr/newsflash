@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>newsflash-feed — proxy options</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 6rem;
+      }
+      h2 {
+        font-size: 1rem;
+        margin: 2.5rem 0 0.25rem;
+      }
+      p.note {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin: 0 0 1rem;
+      }
+      code {
+        font-size: 0.8125rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0d0f12;
+          color: #e8eaed;
+        }
+        p.note {
+          color: #9aa2af;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Four ways to get feed data in</h1>
+    <p class="note">
+      These hit live third-party services, so they need network access and may
+      rate-limit. Open via <code>npm run dev</code> →
+      <code>/examples/hosted-proxies.html</code>.
+    </p>
+
+    <h2>1. Same-origin XML — no proxy at all</h2>
+    <p class="note">
+      Your own site's <code>/feed/</code>, or any publisher that sets
+      <code>Access-Control-Allow-Origin</code>. The component parses RSS and
+      Atom itself, so no server step is involved. (Most publishers do
+      <em>not</em> send CORS headers — hnrss.org, for instance, does not.)
+    </p>
+    <newsflash-feed src="/mock-feed.xml" layout="list" limit="4" sources></newsflash-feed>
+
+    <h2>2. rss2json.com</h2>
+    <p class="note">
+      Returns normalized JSON, so no parsing happens in the browser. Works
+      without a key at a low rate limit — but <code>count</code>,
+      <code>order_by</code> and friends are paid parameters that make the free
+      endpoint return HTTP 422, so let the component's own <code>limit</code>
+      trim the list instead. Every reader's IP and reading habits pass through
+      a third party.
+    </p>
+    <newsflash-feed
+      src="https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fnews.ycombinator.com%2Frss"
+      layout="list"
+      limit="4"
+      images="false"
+      sources
+    ></newsflash-feed>
+
+    <h2>3. AllOrigins</h2>
+    <p class="note">
+      A generic CORS passthrough — <code>/raw</code> returns the untouched
+      feed body, <code>/get</code> wraps it in <code>{ contents: "…" }</code>.
+      The component handles both. No allowlist, no SLA; fine for a demo,
+      risky as a production dependency.
+    </p>
+    <newsflash-feed
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="list"
+      limit="4"
+      images="false"
+    ></newsflash-feed>
+
+    <h2>4. Your own Cloudflare Worker</h2>
+    <p class="note">
+      See <code>examples/cloudflare-worker.js</code>. Same shape as AllOrigins
+      but you control the allowlist, the cache and the user agent. Swap the
+      URL below for your deployed worker.
+    </p>
+    <pre><code>&lt;newsflash-feed
+  src="https://newsflash-proxy.you.workers.dev/?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+  layout="cards"&gt;&lt;/newsflash-feed&gt;</code></pre>
+
+    <h2>5. Server-rendered — no client fetch at all</h2>
+    <p class="note">
+      What the WordPress shortcode does by default: the server embeds the
+      items and the component reads them without a network request.
+    </p>
+    <newsflash-feed layout="list" limit="2" sources>
+      <script type="application/json" slot="data">
+        {
+          "title": "Inline",
+          "items": [
+            {
+              "title": "Rendered by the server, no fetch involved",
+              "link": "https://example.com/a",
+              "date": "2026-07-27T06:00:00Z",
+              "excerpt": "The page already contains this text, so it survives a failed network and shows up in view-source.",
+              "source": "Inline"
+            },
+            {
+              "title": "Second item, same JSON island",
+              "link": "https://example.com/b",
+              "date": "2026-07-26T09:30:00Z",
+              "excerpt": "Escaped with JSON_HEX_TAG server-side so feed content cannot break out of the script block.",
+              "source": "Inline"
+            }
+          ]
+        }
+      </script>
+    </newsflash-feed>
+
+    <script type="module" src="/src/newsflash-feed.js"></script>
+  </body>
+</html>

@@ -1,0 +1,60 @@
+{
+  "title": "Newsflash Demo",
+  "link": "https://example.com/",
+  "items": [
+    {
+      "title": "Harbour cranes go quiet as the night shift ends",
+      "link": "https://example.com/harbour-cranes",
+      "date": "2026-07-27T06:12:00+02:00",
+      "author": "R. de Vries",
+      "image": "https://picsum.photos/seed/nf1/800/450",
+      "excerpt": "The last container came off the deck just after five. What follows is the hour nobody photographs, when the terminal belongs to the gulls.",
+      "source": "Harbour Weekly"
+    },
+    {
+      "title": "A small library of forgotten map projections",
+      "link": "https://example.com/projections",
+      "date": "2026-07-26T18:40:00+02:00",
+      "author": "S. Okonkwo",
+      "image": "https://picsum.photos/seed/nf2/800/450",
+      "excerpt": "Between Mercator and Peters sit two hundred attempts nobody adopted. Some of them are beautiful, and one of them is nearly correct.",
+      "source": "Cartographic"
+    },
+    {
+      "title": "Why your RSS reader shows the wrong date",
+      "link": "https://example.com/rss-dates",
+      "date": "2026-07-25T09:00:00+02:00",
+      "author": "M. Alvarez",
+      "image": "https://picsum.photos/seed/nf3/800/450",
+      "excerpt": "RFC 822, RFC 3339, and a decade of publishers splitting the difference. A short field guide to timestamps that lie.",
+      "source": "Feed Notes"
+    },
+    {
+      "title": "The last independent print shop on the canal",
+      "link": "https://example.com/print-shop",
+      "date": "2026-07-24T11:25:00+02:00",
+      "author": "J. Bakker",
+      "image": "https://picsum.photos/seed/nf4/800/450",
+      "excerpt": "Four presses, one apprentice, and a lease that runs out in March. The owner is not worried, which is itself worth reporting.",
+      "source": "Stadsblad"
+    },
+    {
+      "title": "Field recordings from a decommissioned lighthouse",
+      "link": "https://example.com/lighthouse",
+      "date": "2026-07-22T20:05:00+02:00",
+      "author": "T. Lindqvist",
+      "image": "https://picsum.photos/seed/nf5/800/450",
+      "excerpt": "Thirty hours of wind, one unexplained bell, and a foghorn that has not been connected to anything since 1998.",
+      "source": "Ambient Log"
+    },
+    {
+      "title": "Reading the weather from a hundred year old ledger",
+      "link": "https://example.com/ledger",
+      "date": "2026-07-20T08:15:00+02:00",
+      "author": "P. Nowak",
+      "image": "https://picsum.photos/seed/nf6/800/450",
+      "excerpt": "A grain merchant's daily notes turn out to be the most complete rainfall record in the province, kept entirely by accident.",
+      "source": "Archive Quarterly"
+    }
+  ]
+}

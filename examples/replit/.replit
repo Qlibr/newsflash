@@ -1,0 +1,18 @@
+# Replit config for the standalone CDN demo.
+#
+# Only relevant if you make THIS folder the root of a Repl. Importing the
+# whole repository uses the root .replit instead, which runs the full Vite
+# demo (all five layouts on mock data, no network required).
+#
+# Nothing to install or build here: the component is loaded from a CDN, so
+# pressing Run just serves index.html.
+
+modules = ["nodejs-22"]
+
+entrypoint = "index.html"
+
+run = "npx --yes serve . --listen 5000 --no-clipboard"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

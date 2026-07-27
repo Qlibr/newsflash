@@ -1,0 +1,70 @@
+{
+  "name": "@qlibr/newsflash-feed",
+  "version": "0.1.1",
+  "description": "A themable <newsflash-feed> web component that renders RSS/Atom feeds in five layouts. Works in plain HTML, WordPress and React.",
+  "type": "module",
+  "main": "./dist/newsflash-feed.js",
+  "module": "./dist/newsflash-feed.js",
+  "types": "./types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "default": "./dist/newsflash-feed.js"
+    },
+    "./standalone": "./dist/newsflash-feed.standalone.js",
+    "./package.json": "./package.json"
+  },
+  "customElements": "custom-elements.json",
+  "files": [
+    "dist",
+    "src",
+    "types",
+    "custom-elements.json"
+  ],
+  "sideEffects": [
+    "./dist/newsflash-feed.js",
+    "./dist/newsflash-feed.standalone.js",
+    "./src/newsflash-feed.js"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:esm && npm run build:standalone && node scripts/copy-to-wp.mjs",
+    "build:esm": "vite build",
+    "build:standalone": "vite build --mode standalone",
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "rss",
+    "atom",
+    "feed",
+    "rss-reader",
+    "web-component",
+    "custom-element",
+    "lit",
+    "wordpress",
+    "react"
+  ],
+  "author": "Qlibr BV",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Qlibr/newsflash.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Qlibr/newsflash/issues"
+  },
+  "homepage": "https://github.com/Qlibr/newsflash#readme",
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "lit": "^3.3.0"
+  },
+  "devDependencies": {
+    "vite": "^7.0.0"
+  }
+}

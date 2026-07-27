@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>newsflash-feed — layouts</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0 auto;
+        padding: 2rem 1.5rem 6rem;
+        max-width: 1100px;
+        background: #fbfbfc;
+        color: #16181d;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      h2 {
+        font-size: 0.8125rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #6b7280;
+        margin: 3rem 0 1rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0d0f12;
+          color: #e8eaed;
+        }
+      }
+
+      /* Theming demo: everything below is optional host-page CSS. */
+      newsflash-feed.branded {
+        --nf-accent: #b8235a;
+        --nf-radius: 2px;
+        --nf-title-weight: 700;
+        --nf-font: Georgia, 'Times New Roman', serif;
+      }
+      newsflash-feed.branded::part(title) {
+        text-decoration: underline;
+        text-decoration-color: color-mix(in srgb, #b8235a 40%, transparent);
+        text-underline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>&lt;newsflash-feed&gt;</h1>
+    <p>
+      Every block below is the same component and the same data — only the
+      <code>layout</code> attribute changes. Data comes from
+      <code>/mock-feed.json</code>, so no proxy is needed to poke at the CSS.
+    </p>
+
+    <h2>layout="cards"</h2>
+    <newsflash-feed src="/mock-feed.json" layout="cards" columns="3" sources></newsflash-feed>
+
+    <h2>layout="grid"</h2>
+    <newsflash-feed src="/mock-feed.json" layout="grid" columns="4" limit="4" excerpt="false"></newsflash-feed>
+
+    <h2>layout="list"</h2>
+    <newsflash-feed src="/mock-feed.json" layout="list" limit="5" sources></newsflash-feed>
+
+    <h2>layout="magazine"</h2>
+    <newsflash-feed src="/mock-feed.json" layout="magazine" limit="5"></newsflash-feed>
+
+    <h2>layout="ticker"</h2>
+    <newsflash-feed src="/mock-feed.json" layout="ticker" images="false"></newsflash-feed>
+
+    <h2>themed via CSS custom properties + ::part()</h2>
+    <newsflash-feed
+      class="branded"
+      src="/mock-feed.json"
+      layout="cards"
+      columns="2"
+      limit="2"
+      heading="From the newsroom"
+    ></newsflash-feed>
+
+    <h2>error state</h2>
+    <newsflash-feed src="/does-not-exist.json" layout="list"></newsflash-feed>
+
+    <script type="module" src="/src/newsflash-feed.js"></script>
+  </body>
+</html>

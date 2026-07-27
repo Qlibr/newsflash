@@ -1,0 +1,5 @@
+node_modules/
+dist/
+wordpress/newsflash-rss/assets/
+.env
+*.log

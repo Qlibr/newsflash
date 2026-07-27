@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>Newsflash Demo (XML)</title>
+    <link>https://example.com/</link>
+    <description>A same-origin RSS 2.0 feed, parsed in the browser.</description>
+    <item>
+      <title>Harbour cranes go quiet as the night shift ends</title>
+      <link>https://example.com/harbour-cranes</link>
+      <pubDate>Mon, 27 Jul 2026 06:12:00 +0200</pubDate>
+      <dc:creator>R. de Vries</dc:creator>
+      <media:thumbnail url="https://picsum.photos/seed/nf1/800/450" />
+      <description>The last container came off the deck just after five.</description>
+      <content:encoded><![CDATA[<p>The last container came off the deck just after five. What follows is the hour nobody photographs, when the terminal belongs to the gulls.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>A small library of forgotten map projections</title>
+      <link>https://example.com/projections</link>
+      <pubDate>Sun, 26 Jul 2026 18:40:00 +0200</pubDate>
+      <dc:creator>S. Okonkwo</dc:creator>
+      <enclosure url="https://picsum.photos/seed/nf2/800/450" type="image/jpeg" length="0" />
+      <description>Between Mercator and Peters sit two hundred attempts nobody adopted. Some of them are beautiful, and one of them is nearly correct.</description>
+    </item>
+    <item>
+      <title>Why your RSS reader shows the wrong date</title>
+      <link>https://example.com/rss-dates</link>
+      <pubDate>Sat, 25 Jul 2026 09:00:00 +0200</pubDate>
+      <description>RFC 822, RFC 3339, and a decade of publishers splitting the difference.</description>
+      <content:encoded><![CDATA[<p><img src="https://picsum.photos/seed/nf3/800/450" /> RFC 822, RFC 3339, and a decade of publishers splitting the difference. A short field guide to timestamps that lie.</p>]]></content:encoded>
+    </item>
+    <item>
+      <title>The last independent print shop on the canal</title>
+      <link>https://example.com/print-shop</link>
+      <pubDate>Fri, 24 Jul 2026 11:25:00 +0200</pubDate>
+      <description>Four presses, one apprentice, and a lease that runs out in March.</description>
+    </item>
+  </channel>
+</rss>

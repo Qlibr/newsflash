@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>newsflash-feed from a CDN</title>
+
+    <!--
+      One file, no build step, no npm install. Copy this into a Replit static
+      app, a CodePen, or any HTML page.
+
+      unpkg and jsDelivr serve straight from the npm registry, so no separate
+      CDN deploy exists.
+
+      The version is pinned exactly on purpose. CDNs cache version *ranges*
+      (@0.1) for hours, so a freshly published patch can keep serving the
+      previous build; exact versions are immutable and available immediately.
+    -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.1/dist/newsflash-feed.standalone.js"
+      defer
+    ></script>
+
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 2rem 1.25rem 5rem;
+        background: #fbfbfc;
+        color: #16181d;
+      }
+      h2 {
+        font-size: 0.75rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #6b7280;
+        margin: 2.5rem 0 0.75rem;
+      }
+      @media (prefers-color-scheme: dark) {
+        body {
+          background: #0d0f12;
+          color: #e8eaed;
+        }
+      }
+      .branded {
+        --nf-accent: #b8235a;
+        --nf-radius: 2px;
+        --nf-font: Georgia, serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>&lt;newsflash-feed&gt; from a CDN</h1>
+    <p>
+      Live Hacker News headlines, fetched through AllOrigins because the feed
+      itself sends no CORS headers. For anything real, use your own proxy or
+      render server-side — see the README.
+    </p>
+
+    <h2>cards</h2>
+    <newsflash-feed
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="cards"
+      columns="3"
+      limit="6"
+      images="false"
+      sources
+    ></newsflash-feed>
+
+    <h2>list, themed</h2>
+    <newsflash-feed
+      class="branded"
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="list"
+      limit="5"
+      images="false"
+      heading="From Hacker News"
+    ></newsflash-feed>
+
+    <h2>ticker</h2>
+    <newsflash-feed
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="ticker"
+      limit="10"
+      images="false"
+    ></newsflash-feed>
+  </body>
+</html>

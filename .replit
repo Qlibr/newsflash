@@ -1,0 +1,19 @@
+# Replit configuration.
+#
+# Import this repository into Replit (Create App -> Import from GitHub) and
+# press Run. It installs dependencies and starts the Vite dev server, which
+# serves the layout demo in index.html — all five layouts on mock data, with
+# no npm publish or CDN needed.
+#
+# The host/HMR settings Replit needs live in vite.config.js, keyed off the
+# REPL_ID environment variable so local development is unaffected.
+
+modules = ["nodejs-22"]
+
+entrypoint = "index.html"
+
+run = "npm install && npm run dev"
+
+[[ports]]
+localPort = 5173
+externalPort = 80

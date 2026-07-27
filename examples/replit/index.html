@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>newsflash-feed — live demo</title>
+
+    <!--
+      Zero install, zero build. The component comes from a CDN, which serves it
+      straight from npm. Everything below is one custom element with different
+      attributes.
+
+      The feed data is inlined as a <script type="application/json"> child, so
+      this page renders with no network calls at all. "Load live feed" swaps in
+      a real RSS source to show fetching — through a public CORS proxy, which
+      is demo-grade and may fail; that is exactly why the default is inline.
+    -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.1/dist/newsflash-feed.standalone.js"
+      defer
+    ></script>
+
+    <style>
+      :root {
+        color-scheme: light dark;
+        --page: #fbfbfc;
+        --ink: #16181d;
+        --sub: #6b7280;
+        --line: #e3e6ea;
+        --chip: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page: #0d0f12;
+          --ink: #e8eaed;
+          --sub: #9aa2af;
+          --line: #262a31;
+          --chip: #16181d;
+        }
+      }
+
+      body {
+        margin: 0;
+        padding: 2.5rem 1.5rem 6rem;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: var(--page);
+        color: var(--ink);
+        line-height: 1.5;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 1.75rem;
+        letter-spacing: -0.02em;
+        margin: 0 0 0.35rem;
+      }
+      .lede {
+        color: var(--sub);
+        margin: 0 0 2rem;
+        max-width: 62ch;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.875em;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--chip);
+        margin-bottom: 1.5rem;
+        position: sticky;
+        top: 1rem;
+        z-index: 10;
+      }
+      .controls span {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--sub);
+      }
+      button {
+        font: inherit;
+        font-size: 0.875rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+      }
+      button:hover {
+        border-color: currentColor;
+      }
+      button[aria-pressed="true"] {
+        background: var(--ink);
+        color: var(--page);
+        border-color: var(--ink);
+      }
+      button:focus-visible {
+        outline: 2px solid #1d4ed8;
+        outline-offset: 2px;
+      }
+      #live {
+        margin-left: auto;
+      }
+      .note {
+        font-size: 0.8125rem;
+        color: var(--sub);
+        margin: 0 0 1rem;
+        min-height: 1.2em;
+      }
+
+      .snippet {
+        margin: 1.5rem 0 0;
+        padding: 0.875rem 1rem;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: var(--chip);
+        overflow-x: auto;
+        font-size: 0.8125rem;
+        white-space: pre;
+      }
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+        color: var(--sub);
+        font-size: 0.875rem;
+      }
+      a {
+        color: inherit;
+      }
+    </style>
+  </head>
+
+  <body>
+    <main>
+      <h1>&lt;newsflash-feed&gt;</h1>
+      <p class="lede">
+        An RSS feed rendered by one web component. Switch layout and theme
+        below — the markup never changes, only attributes.
+      </p>
+
+      <div class="controls">
+        <span>Layout</span>
+        <button data-layout="cards" aria-pressed="true">cards</button>
+        <button data-layout="grid" aria-pressed="false">grid</button>
+        <button data-layout="list" aria-pressed="false">list</button>
+        <button data-layout="magazine" aria-pressed="false">magazine</button>
+        <button data-layout="ticker" aria-pressed="false">ticker</button>
+        <span>Theme</span>
+        <button data-theme="auto" aria-pressed="true">auto</button>
+        <button data-theme="light" aria-pressed="false">light</button>
+        <button data-theme="dark" aria-pressed="false">dark</button>
+        <button id="live">Load live feed</button>
+      </div>
+
+      <p class="note" id="note">
+        Showing inlined sample data — no network request was made to render
+        this.
+      </p>
+
+      <newsflash-feed id="demo" layout="cards" columns="3" limit="9" sources>
+        <script type="application/json" slot="data">
+          {
+            "title": "Newsflash Sample",
+            "items": [
+              {
+                "title": "Harbour cranes go quiet as the night shift ends",
+                "link": "https://example.com/harbour-cranes",
+                "date": "2026-07-27T06:12:00+02:00",
+                "image": "https://picsum.photos/seed/nf1/800/450",
+                "excerpt": "The last container came off the deck just after five. What follows is the hour nobody photographs, when the terminal belongs to the gulls.",
+                "source": "Harbour Weekly"
+              },
+              {
+                "title": "A small library of forgotten map projections",
+                "link": "https://example.com/projections",
+                "date": "2026-07-26T18:40:00+02:00",
+                "image": "https://picsum.photos/seed/nf2/800/450",
+                "excerpt": "Between Mercator and Peters sit two hundred attempts nobody adopted. Some of them are beautiful, and one of them is nearly correct.",
+                "source": "Cartographic"
+              },
+              {
+                "title": "Why your RSS reader shows the wrong date",
+                "link": "https://example.com/rss-dates",
+                "date": "2026-07-25T09:00:00+02:00",
+                "image": "https://picsum.photos/seed/nf3/800/450",
+                "excerpt": "RFC 822, RFC 3339, and a decade of publishers splitting the difference. A short field guide to timestamps that lie.",
+                "source": "Feed Notes"
+              },
+              {
+                "title": "The last independent print shop on the canal",
+                "link": "https://example.com/print-shop",
+                "date": "2026-07-24T11:25:00+02:00",
+                "image": "https://picsum.photos/seed/nf4/800/450",
+                "excerpt": "Four presses, one apprentice, and a lease that runs out in March. The owner is not worried, which is itself worth reporting.",
+                "source": "Stadsblad"
+              },
+              {
+                "title": "Field recordings from a decommissioned lighthouse",
+                "link": "https://example.com/lighthouse",
+                "date": "2026-07-22T20:05:00+02:00",
+                "image": "https://picsum.photos/seed/nf5/800/450",
+                "excerpt": "Thirty hours of wind, one unexplained bell, and a foghorn that has not been connected to anything since 1998.",
+                "source": "Ambient Log"
+              },
+              {
+                "title": "Reading the weather from a hundred year old ledger",
+                "link": "https://example.com/ledger",
+                "date": "2026-07-20T08:15:00+02:00",
+                "image": "https://picsum.photos/seed/nf6/800/450",
+                "excerpt": "A grain merchant's daily notes turn out to be the most complete rainfall record in the province, kept entirely by accident.",
+                "source": "Archive Quarterly"
+              },
+              {
+                "title": "The tram depot that became a concert hall",
+                "link": "https://example.com/tram-depot",
+                "date": "2026-07-18T15:45:00+02:00",
+                "image": "https://picsum.photos/seed/nf7/800/450",
+                "excerpt": "Nobody planned the acoustics. The engineers who poured the floor in 1931 simply had opinions about concrete thickness.",
+                "source": "Stadsblad"
+              },
+              {
+                "title": "A census of the city's remaining public clocks",
+                "link": "https://example.com/public-clocks",
+                "date": "2026-07-16T07:30:00+02:00",
+                "image": "https://picsum.photos/seed/nf8/800/450",
+                "excerpt": "Forty-one still run. Nine are wrong by more than an hour. One has shown 4:20 since the war and is now protected.",
+                "source": "Archive Quarterly"
+              },
+              {
+                "title": "What the harbour pilots see that the instruments miss",
+                "link": "https://example.com/pilots",
+                "date": "2026-07-14T12:00:00+02:00",
+                "image": "https://picsum.photos/seed/nf9/800/450",
+                "excerpt": "Every approach is logged, plotted and modelled. The pilots still read the water, and they are still right more often.",
+                "source": "Harbour Weekly"
+              }
+            ]
+          }
+        </script>
+      </newsflash-feed>
+
+      <pre class="snippet" id="snippet"></pre>
+
+      <footer>
+        <p>
+          The default view uses data inlined in the page — the pattern the
+          WordPress plugin emits, and the one that needs no proxy at all. "Load
+          live feed" switches to real RSS through a public CORS proxy, which is
+          fine for a demo and wrong for production: a third party then sees
+          every reader. Server-side rendering and self-hosted proxies are both
+          covered in the
+          <a href="https://github.com/Qlibr/newsflash#where-the-data-comes-from"
+            >README</a
+          >.
+        </p>
+        <p>
+          <code>npm i @qlibr/newsflash-feed</code> ·
+          <a href="https://www.npmjs.com/package/@qlibr/newsflash-feed">npm</a>
+          ·
+          <a href="https://github.com/Qlibr/newsflash">source</a>
+        </p>
+      </footer>
+    </main>
+
+    <script>
+      const feed = document.getElementById('demo');
+      const snippet = document.getElementById('snippet');
+      const note = document.getElementById('note');
+      const liveButton = document.getElementById('live');
+
+      const LIVE_SRC =
+        'https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage';
+
+      function paint() {
+        const layout = feed.getAttribute('layout');
+        const theme = feed.getAttribute('theme') || 'auto';
+        const src = feed.getAttribute('src');
+        const lines = ['<newsflash-feed'];
+        lines.push(src ? `  src="${src.slice(0, 48)}…"` : '  <!-- inline JSON child -->');
+        lines.push(`  layout="${layout}"`);
+        if (layout !== 'ticker') lines.push('  columns="3"');
+        lines.push(`  limit="${feed.getAttribute('limit')}"`);
+        if (theme !== 'auto') lines.push(`  theme="${theme}"`);
+        snippet.textContent = `${lines.join('\n')}\n></newsflash-feed>`;
+      }
+
+      function selectGroup(buttons, chosen) {
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === chosen)));
+      }
+
+      const layoutButtons = [...document.querySelectorAll('button[data-layout]')];
+      layoutButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          selectGroup(layoutButtons, button);
+          const layout = button.dataset.layout;
+          feed.setAttribute('layout', layout);
+          // The ticker is headline-only, so it can carry more items.
+          feed.setAttribute('limit', layout === 'ticker' ? '12' : '9');
+          paint();
+        });
+      });
+
+      const themeButtons = [...document.querySelectorAll('button[data-theme]')];
+      themeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          selectGroup(themeButtons, button);
+          feed.setAttribute('theme', button.dataset.theme);
+          paint();
+        });
+      });
+
+      liveButton.addEventListener('click', () => {
+        if (feed.hasAttribute('src')) {
+          // Removing src makes the component fall back to the inline JSON
+          // child on its own.
+          feed.removeAttribute('src');
+          liveButton.textContent = 'Load live feed';
+          note.textContent =
+            'Showing inlined sample data — no network request was made to render this.';
+        } else {
+          feed.setAttribute('src', LIVE_SRC);
+          liveButton.textContent = 'Back to sample data';
+          note.textContent = 'Fetching live headlines through a public CORS proxy…';
+        }
+        paint();
+      });
+
+      feed.addEventListener('newsflash-load', (event) => {
+        if (feed.hasAttribute('src')) {
+          note.textContent = `Live: ${event.detail.items.length} headlines fetched from Hacker News.`;
+        }
+      });
+
+      feed.addEventListener('newsflash-error', (event) => {
+        note.textContent = `Live feed unavailable (${event.detail.error.message}). Public CORS proxies are unreliable — this is why the default is inlined data.`;
+      });
+
+      paint();
+    </script>
+  </body>
+</html>

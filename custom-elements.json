@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "README.md",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "src/newsflash-feed.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "name": "NewsflashFeed",
+          "tagName": "newsflash-feed",
+          "customElement": true,
+          "superclass": { "name": "LitElement", "package": "lit" },
+          "summary": "Renders an RSS/Atom/JSON feed in one of five layouts.",
+          "description": "Data reaches it three ways, in priority order: a <script type=\"application/json\"> child (inlined by the server, no request made), a `src` URL returning JSON or XML, or `feed` + `endpoint`. Cross-origin feeds still need a server that sends CORS headers.",
+          "attributes": [
+            {
+              "name": "src",
+              "type": { "text": "string" },
+              "default": "''",
+              "description": "Fully-formed URL returning JSON or XML. Takes precedence over `feed`.",
+              "fieldName": "src"
+            },
+            {
+              "name": "feed",
+              "type": { "text": "string" },
+              "default": "''",
+              "description": "Feed URL(s), comma separated, resolved through `endpoint`.",
+              "fieldName": "feed"
+            },
+            {
+              "name": "endpoint",
+              "type": { "text": "string" },
+              "default": "'/wp-json/newsflash/v1/feed'",
+              "description": "Proxy base used with `feed`.",
+              "fieldName": "endpoint"
+            },
+            {
+              "name": "layout",
+              "type": { "text": "'list' | 'grid' | 'cards' | 'magazine' | 'ticker'" },
+              "default": "'grid'",
+              "description": "Which layout to render. Reflected.",
+              "fieldName": "layout"
+            },
+            {
+              "name": "theme",
+              "type": { "text": "'auto' | 'light' | 'dark'" },
+              "default": "'auto'",
+              "description": "Colour scheme. `auto` follows prefers-color-scheme. Reflected.",
+              "fieldName": "theme"
+            },
+            {
+              "name": "limit",
+              "type": { "text": "number" },
+              "default": "9",
+              "description": "Maximum items rendered.",
+              "fieldName": "limit"
+            },
+            {
+              "name": "columns",
+              "type": { "text": "number" },
+              "default": "3",
+              "description": "Column ceiling for the grid and cards layouts.",
+              "fieldName": "columns"
+            },
+            {
+              "name": "heading",
+              "type": { "text": "string" },
+              "default": "''",
+              "description": "Renders an <h2> above the list.",
+              "fieldName": "heading"
+            },
+            {
+              "name": "images",
+              "type": { "text": "boolean" },
+              "default": "true",
+              "description": "Show thumbnails.",
+              "fieldName": "images"
+            },
+            {
+              "name": "excerpt",
+              "type": { "text": "boolean" },
+              "default": "true",
+              "description": "Show excerpt text.",
+              "fieldName": "excerpt"
+            },
+            {
+              "name": "dates",
+              "type": { "text": "boolean" },
+              "default": "true",
+              "description": "Show the timestamp.",
+              "fieldName": "dates"
+            },
+            {
+              "name": "sources",
+              "type": { "text": "boolean" },
+              "default": "false",
+              "description": "Show the feed/source name. Useful when merging feeds.",
+              "fieldName": "sources"
+            },
+            {
+              "name": "excerpt-words",
+              "type": { "text": "number" },
+              "default": "22",
+              "description": "Word count before truncation.",
+              "fieldName": "excerptWords"
+            },
+            {
+              "name": "date-style",
+              "type": { "text": "'relative' | 'absolute'" },
+              "default": "'relative'",
+              "description": "\"3 days ago\" versus \"24 Jul 2026\".",
+              "fieldName": "dateStyle"
+            },
+            {
+              "name": "locale",
+              "type": { "text": "string | undefined" },
+              "description": "BCP 47 tag for date formatting. Defaults to <html lang>.",
+              "fieldName": "locale"
+            },
+            {
+              "name": "target",
+              "type": { "text": "string" },
+              "default": "'_blank'",
+              "description": "Link target. `_blank` also sets rel=\"noopener noreferrer\".",
+              "fieldName": "target"
+            },
+            {
+              "name": "refresh",
+              "type": { "text": "number" },
+              "default": "0",
+              "description": "Re-fetch interval in seconds. 0 disables. Ignored without a URL.",
+              "fieldName": "refresh"
+            },
+            {
+              "name": "lazy",
+              "type": { "text": "boolean" },
+              "default": "false",
+              "description": "Defer the first fetch until 200px from the viewport.",
+              "fieldName": "lazy"
+            }
+          ],
+          "members": [
+            {
+              "kind": "field",
+              "name": "resolvedUrl",
+              "type": { "text": "string" },
+              "readonly": true,
+              "description": "The URL that will be fetched, or '' when there is none."
+            },
+            {
+              "kind": "method",
+              "name": "load",
+              "return": { "type": { "text": "Promise<void>" } },
+              "description": "Re-fetch now, aborting any in-flight request first."
+            }
+          ],
+          "events": [
+            {
+              "name": "newsflash-load",
+              "type": { "text": "CustomEvent<{ items: NewsflashItem[] }>" },
+              "description": "Fired after data is adopted, from a fetch or from inline JSON. Bubbles and composed."
+            },
+            {
+              "name": "newsflash-error",
+              "type": { "text": "CustomEvent<{ error: Error }>" },
+              "description": "Fired on network failure, non-2xx response, or an unparseable body. Bubbles and composed."
+            }
+          ],
+          "slots": [
+            {
+              "name": "header",
+              "description": "Extra content beside the heading — a \"view all\" link, a filter control."
+            },
+            {
+              "name": "data",
+              "description": "A <script type=\"application/json\"> child read as inline data instead of fetching. The slot name is documentary; the script is found by type."
+            }
+          ],
+          "cssParts": [
+            { "name": "container", "description": "The outer <section>, carries the layout class." },
+            { "name": "header", "description": "Wrapper around the heading and header slot." },
+            { "name": "heading", "description": "The <h2> rendered by the heading attribute." },
+            { "name": "list", "description": "The <ul> holding all items." },
+            { "name": "item", "description": "One <li>." },
+            { "name": "link", "description": "The <a> wrapping an item's whole content." },
+            { "name": "thumb", "description": "Thumbnail container, sets the aspect ratio." },
+            { "name": "image", "description": "The <img> itself." },
+            { "name": "body", "description": "Text column beside or below the thumbnail." },
+            { "name": "title", "description": "Item title <h3>." },
+            { "name": "excerpt", "description": "Item excerpt paragraph." },
+            { "name": "meta", "description": "Row holding source and date." },
+            { "name": "source", "description": "Feed/source name." },
+            { "name": "date", "description": "The <time> element." },
+            { "name": "status", "description": "Error and empty-state messages." }
+          ],
+          "cssProperties": [
+            { "name": "--nf-bg", "default": "transparent", "description": "Component background." },
+            { "name": "--nf-color", "default": "#16181d", "description": "Body text." },
+            { "name": "--nf-muted", "default": "#5f6672", "description": "Excerpt and meta text." },
+            { "name": "--nf-accent", "default": "#1d4ed8", "description": "Hover titles and focus ring." },
+            { "name": "--nf-card-bg", "default": "#ffffff", "description": "Cards layout surface." },
+            { "name": "--nf-border", "default": "#e3e6ea", "description": "Rules and card borders." },
+            { "name": "--nf-shadow", "description": "Card resting shadow." },
+            { "name": "--nf-skeleton", "default": "#e9ecf1", "description": "Loading placeholder fill." },
+            { "name": "--nf-font", "default": "system-ui, sans-serif", "description": "Font stack." },
+            { "name": "--nf-font-size", "default": "1rem", "description": "Base size." },
+            { "name": "--nf-heading-size", "default": "1.375rem", "description": "Heading <h2> size." },
+            { "name": "--nf-title-size", "default": "1.0625rem", "description": "Item title size." },
+            { "name": "--nf-title-weight", "default": "600", "description": "Item title weight." },
+            { "name": "--nf-title-lines", "default": "3", "description": "Title line clamp." },
+            { "name": "--nf-meta-size", "default": "0.8125rem", "description": "Source and date size." },
+            { "name": "--nf-excerpt-size", "default": "0.9375rem", "description": "Excerpt size." },
+            { "name": "--nf-excerpt-lines", "default": "3", "description": "Excerpt line clamp." },
+            { "name": "--nf-gap", "default": "1.5rem", "description": "Grid and row gap." },
+            { "name": "--nf-columns", "default": "3", "description": "Column ceiling; set via the columns attribute." },
+            { "name": "--nf-radius", "default": "10px", "description": "Corner radius." },
+            { "name": "--nf-padding", "default": "1rem", "description": "Card interior padding." },
+            { "name": "--nf-image-ratio", "default": "16 / 9", "description": "Large thumbnail aspect ratio." },
+            { "name": "--nf-thumb-size", "default": "88px", "description": "Small thumbnail edge." },
+            { "name": "--nf-ticker-duration", "default": "40s", "description": "One full ticker loop." },
+            { "name": "--nf-ticker-gap", "default": "3rem", "description": "Ticker item spacing." }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NewsflashFeed",
+          "declaration": { "name": "NewsflashFeed", "module": "src/newsflash-feed.js" }
+        },
+        {
+          "kind": "js",
+          "name": "LAYOUTS",
+          "declaration": { "name": "LAYOUTS", "module": "src/newsflash-feed.js" }
+        },
+        {
+          "kind": "js",
+          "name": "default",
+          "declaration": { "name": "NewsflashFeed", "module": "src/newsflash-feed.js" }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "newsflash-feed",
+          "declaration": { "name": "NewsflashFeed", "module": "src/newsflash-feed.js" }
+        }
+      ]
+    }
+  ]
+}
