@@ -50,8 +50,7 @@ jsDelivr and esm.sh serve straight from the registry, with no second publish
 step.
 
 ```html
-<!-- pin the version in production -->
-<script src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1/dist/newsflash-feed.standalone.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.1/dist/newsflash-feed.standalone.js" defer></script>
 <newsflash-feed src="/feed.xml" layout="list"></newsflash-feed>
 ```
 
