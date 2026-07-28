@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  WordPress-integration suite. Separate from phpunit.xml.dist so the default
+  `composer test` (unit, no WordPress) never picks these up. Run it under a WP
+  test environment — see tests-integration/README.md.
+-->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests-integration/bootstrap.php"
+         colors="true">
+  <testsuites>
+    <testsuite name="newsflash-integration">
+      <directory>tests-integration</directory>
+    </testsuite>
+  </testsuites>
+</phpunit>

@@ -43,8 +43,8 @@ jobs:
       - uses: actions/checkout@v4
 
       # The plugin's floor is PHP 7.4, but PHPUnit 11 requires 8.3+, so the
-      # suite runs on a modern PHP. The code under test is plain 7.4-compatible
-      # PHP; a matrix that also lints against 7.4 could be added later.
+      # suite runs on a modern PHP. The plugin's own 7.4 compatibility is
+      # guarded by the php-lint job below.
       - uses: shivammathur/setup-php@v2
         with:
           php-version: '8.3'
@@ -57,3 +57,19 @@ jobs:
       - name: Run PHPUnit
         working-directory: wordpress
         run: composer test
+
+  # The suite needs PHP 8.3, so lint the shipped plugin against its actual 7.4
+  # floor to catch anything that would fail to parse there (match, nullsafe,
+  # enums, constructor promotion, …). Tests are excluded — they run on 8.3.
+  php-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Lint plugin PHP against 7.4
+        run: find wordpress/newsflash-rss -name '*.php' -print0 | xargs -0 -n1 -P4 php -l
