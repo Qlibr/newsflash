@@ -100,5 +100,40 @@ function rest_ensure_response( $data ) {
 	return $data;
 }
 
+// A minimal hook registry so fetch()'s add/remove of the redirect gate and the
+// pin setter can be exercised. A test's fetch_feed stub pulls the registered
+// callbacks back out to simulate a request/redirect chain.
+$GLOBALS['newsflash_hooks'] = array();
+
+function add_filter( $tag, $callback, $priority = 10, $args = 1 ) {
+	$GLOBALS['newsflash_hooks'][ $tag ][] = $callback;
+	return true;
+}
+
+function add_action( $tag, $callback, $priority = 10, $args = 1 ) {
+	return add_filter( $tag, $callback, $priority, $args );
+}
+
+function remove_filter( $tag, $callback, $priority = 10 ) {
+	foreach ( $GLOBALS['newsflash_hooks'][ $tag ] ?? array() as $i => $registered ) {
+		if ( $registered === $callback ) {
+			unset( $GLOBALS['newsflash_hooks'][ $tag ][ $i ] );
+		}
+	}
+	return true;
+}
+
+function remove_action( $tag, $callback, $priority = 10 ) {
+	return remove_filter( $tag, $callback, $priority );
+}
+
+// Delegates to a per-test closure so a test can drive the registered hooks.
+function fetch_feed( $urls ) {
+	if ( isset( $GLOBALS['newsflash_fetch_feed'] ) ) {
+		return ( $GLOBALS['newsflash_fetch_feed'] )( $urls );
+	}
+	return null;
+}
+
 require_once __DIR__ . '/../newsflash-rss/includes/class-newsflash-feed.php';
 require_once __DIR__ . '/../newsflash-rss/includes/class-newsflash-rest.php';

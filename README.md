@@ -652,14 +652,21 @@ checked against PHP's private **and reserved** ranges before fetching.
 RFC1918 but permits `169.254.0.0/16`, which is where cloud instance metadata
 (`169.254.169.254`) and ECS task credentials (`169.254.170.2`) live.
 
-The connection is then **pinned** to the addresses that passed that check.
+This check is applied to **every hop**, not just the URL on the page. Because
+WordPress follows redirects in PHP rather than inside cURL, the plugin gates
+each request through `pre_http_request`: a feed that `302`s to
+`http://169.254.169.254/` is re-resolved and refused just like a hostile `src`
+would be.
+
+Each approved hop is then **pinned** to the address that passed its check.
 Without pinning there is a DNS-rebinding window: the name is resolved once for
-the check and again by cURL for the request, so a low-TTL record could rebind
+the check and again by cURL when it connects, so a low-TTL record could rebind
 the host to an internal address in between. The plugin closes it by setting
-`CURLOPT_RESOLVE` on the cURL handle through the `http_api_curl` action, so the
-request connects to the vetted address instead of resolving the name a second
-time. This covers the cURL transport that every mainstream install uses; the
-host of a cross-host *redirect* is still resolved by cURL and is not pinned.
+`CURLOPT_RESOLVE` on the handle through the `http_api_curl` action, so cURL
+connects to the vetted address instead of resolving the name a second time. The
+gate resolves once and the pin reuses that result, so the two cannot disagree.
+This covers the cURL transport every mainstream install uses; the streams
+fallback (`allow_url_fopen`, no cURL extension) is not pinned.
 
 ### Filters
 
@@ -740,10 +747,10 @@ scrollable strip instead.
 - Dates are formatted from whatever string the feed supplied. Non-ISO formats
   (RFC 822, or rss2json's `"2026-07-27 06:18:10"`) rely on the browser's
   `Date` parsing and are interpreted as local time.
-- The proxy pins each fetch to the address it validated, closing the
-  DNS-rebinding window on the request itself. A cross-host redirect is the
-  residual case: cURL resolves the redirect target's host and that hop is not
-  pinned. See [Security](#security).
+- The proxy validates and pins every request hop — including redirects — to
+  the address it vetted, closing the DNS-rebinding window and blocking
+  redirect-based SSRF. The one uncovered path is the non-cURL streams
+  transport, which cannot be pinned. See [Security](#security).
 
 ---
 
