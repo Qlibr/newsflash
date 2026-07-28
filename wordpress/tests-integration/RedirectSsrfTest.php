@@ -42,7 +42,12 @@ class RedirectSsrfTest extends WP_UnitTestCase {
 
 		remove_filter( 'pre_http_request', $upstream, 1 );
 
+		// Assert the *redirect gate* fired, not merely that some error came back:
+		// if the test host failed to resolve, get()'s up-front validate() would
+		// return 'newsflash_invalid_url' and this would false-pass without ever
+		// exercising the redirect path.
 		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'newsflash_blocked_host', $result->get_error_code() );
 	}
 
 	/**

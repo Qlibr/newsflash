@@ -16,5 +16,12 @@
       "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility,vendor/phpcsstandards/phpcsutils",
       "phpcs --standard=phpcs.xml.dist"
     ]
+  },
+  "scripts-descriptions": {
+    "test": "Run the PHPUnit unit suite.",
+    "compat": "Check the plugin against its PHP 7.4 floor. First registers the PHPCompatibility + PHPCSUtils standards via config-set (writes vendor/.../CodeSniffer.conf; --runtime-set cannot register a standard for discovery), then runs phpcs."
+  },
+  "extra": {
+    "notes": "phpcompatibility/php-compatibility is on dev-develop deliberately: the last tagged release (9.3.5, 2019) predates PHP 8 and cannot detect 8.x functions/operators against a 7.4 target. composer.lock pins the exact commit for reproducible installs; do NOT bump this back to ^9.3 without restoring equivalent 8.x coverage."
   }
 }

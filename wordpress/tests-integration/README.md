@@ -47,5 +47,8 @@ php vendor/phpunit/phpunit/phpunit -c phpunit-integration.xml.dist
 - The initial feed host is a real, resolvable public domain (`example.com`) so
   the plugin's up-front `validate()` passes; its HTTP response is mocked via
   `pre_http_request` to issue the redirect. No real request leaves the machine.
+  This means the test env needs outbound DNS for `example.com` — the redirect
+  test asserts the `newsflash_blocked_host` error code precisely so that a
+  resolution failure surfaces as a failed test rather than a false pass.
 - SimplePie caches parsed feeds in a transient. If you iterate on these tests,
   clear transients (`wp transient delete --all`) or vary the feed URL.
