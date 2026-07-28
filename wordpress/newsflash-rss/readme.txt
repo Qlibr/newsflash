@@ -61,7 +61,7 @@ bundle is roughly 13 kB gzipped with no runtime dependencies.
 | `feed` | — | Required. One URL or a comma-separated list |
 | `mode` | `inline` | `inline` renders server-side, `ajax` fetches in the browser |
 | `layout` | `grid` | `list` `grid` `cards` `magazine` `ticker` |
-| `theme` | `auto` | `auto` `light` `dark` |
+| `theme` | `auto` | `auto` `light` `dark` `matrix` (a dot-matrix LED sign) |
 | `limit` | `9` | 1–50 |
 | `columns` | `3` | 1–6 |
 | `heading` | — | Optional heading above the feed |

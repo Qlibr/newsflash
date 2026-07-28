@@ -297,6 +297,31 @@ describe('rendering', () => {
 });
 
 // ---------------------------------------------------------------------------
+// theme="matrix" — CSS, so only the wiring that can break silently is checked.
+// ---------------------------------------------------------------------------
+describe('matrix theme', () => {
+  const data = { items: [{ title: 'One', link: 'https://e.com/1' }] };
+
+  it('mixes every colour from one phosphor property', async () => {
+    const el = await mount({ attrs: { theme: 'matrix' }, inline: data });
+    el.style.setProperty('--nf-matrix-on', 'rgb(255, 176, 32)');
+    const container = el.shadowRoot.querySelector('.container');
+    expect(getComputedStyle(container).color).to.equal('rgb(255, 176, 32)');
+  });
+
+  it('drops the ticker edge fade so the panel ends at its lamps', async () => {
+    // The theme has to defeat a base-sheet rule it ties with on specificity,
+    // so this breaks the moment matrixStyles stops being the last sheet.
+    const plain = await mount({ attrs: { layout: 'ticker' }, inline: data });
+    const themed = await mount({ attrs: { layout: 'ticker', theme: 'matrix' }, inline: data });
+    const maskOf = (el) =>
+      getComputedStyle(el.shadowRoot.querySelector('.container')).maskImage;
+    expect(maskOf(plain)).to.contain('gradient');
+    expect(maskOf(themed)).to.equal('none');
+  });
+});
+
+// ---------------------------------------------------------------------------
 // Exports
 // ---------------------------------------------------------------------------
 describe('module exports', () => {

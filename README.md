@@ -334,7 +334,7 @@ re-renders. Booleans accept a bare attribute (`sources`) or an explicit string
 | `feed` | string | — | Feed URL(s), comma separated, resolved through `endpoint`. |
 | `endpoint` | string | `/wp-json/newsflash/v1/feed` | Proxy base used with `feed`. |
 | `layout` | string | `grid` | `list` `grid` `cards` `magazine` `ticker`. Reflected. |
-| `theme` | string | `auto` | `auto` `light` `dark`. Reflected. |
+| `theme` | string | `auto` | `auto` `light` `dark` `matrix`. Reflected. |
 | `limit` | number | `9` | Maximum items rendered. |
 | `columns` | number | `3` | Column ceiling for `grid` and `cards`. |
 | `heading` | string | — | Renders an `<h2>` above the list. |
@@ -412,6 +412,48 @@ newsflash-feed {
 
 Dark equivalents apply automatically under `prefers-color-scheme: dark`.
 `theme="light"` opts out; `theme="dark"` forces dark regardless.
+
+### theme="matrix"
+
+A dot-matrix LED sign. It is a scheme of its own rather than a light/dark
+pair, so it ignores `prefers-color-scheme`.
+
+```html
+<newsflash-feed src="/feed.json" layout="ticker" theme="matrix" heading="Live">
+</newsflash-feed>
+```
+
+The lamp grid is drawn *over* the content, not behind it: the panel paints
+every unlit lamp and an overlay mesh punches a hole for each one, so glyphs are
+rendered through lamps rather than merely coloured like them. Pair it with
+`layout="ticker"` for the full sign — the crawl steps from lamp to lamp instead
+of gliding, the soft edge fade is replaced by a hard bezel, `heading` becomes
+the fixed plate at the head of the sign, and the item date rides inline so the
+zipper stays one line.
+
+Every other layout gets the phosphor palette, the mono type and the unlit-lamp
+panel, but no mesh — a paragraph of body copy behind a 3px mesh is unreadable.
+
+| Property | Default | Notes |
+|---|---|---|
+| `--nf-matrix-on` | `#4dff88` | The lamp. Every other colour is mixed from it |
+| `--nf-matrix-panel` | `#060806` | Unlit panel |
+| `--nf-matrix-pitch` | `3px` | Lamp spacing. Coarser stays as bright, just blockier |
+| `--nf-matrix-mesh` | `0.88` | How hard the mesh bites. `0` leaves plain phosphor text |
+| `--nf-matrix-steps` | `520` | Scroll steps per loop |
+
+Recolouring the whole sign — text, glow, unlit lamps, borders and the duotone
+images — is one property:
+
+```css
+newsflash-feed[theme='matrix'] { --nf-matrix-on: #ffb020; }  /* departure board */
+newsflash-feed[theme='matrix'] { --nf-matrix-on: #ff3b30; }  /* news zipper */
+```
+
+The theme mixes its colours with `color-mix()`, which needs Chrome 111,
+Safari 16.2 or Firefox 113. Below that the sign degrades to phosphor text on a
+dark panel with no lamp grid — readable, just not a sign. No other theme or
+layout uses it.
 
 ### Parts
 

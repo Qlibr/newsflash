@@ -37,6 +37,10 @@
         --nf-title-weight: 700;
         --nf-font: Georgia, 'Times New Roman', serif;
       }
+      /* One property recolours the whole sign. */
+      newsflash-feed.amber {
+        --nf-matrix-on: #ffb020;
+      }
       newsflash-feed.branded::part(title) {
         text-decoration: underline;
         text-decoration-color: color-mix(in srgb, #b8235a 40%, transparent);
@@ -66,6 +70,26 @@
 
     <h2>layout="ticker"</h2>
     <newsflash-feed src="/mock-feed.json" layout="ticker" images="false"></newsflash-feed>
+
+    <h2>theme="matrix" — layout="ticker"</h2>
+    <newsflash-feed
+      src="/mock-feed.json"
+      layout="ticker"
+      theme="matrix"
+      heading="Live"
+      images="false"
+    ></newsflash-feed>
+
+    <h2>theme="matrix" — the same sign in amber, on layout="cards"</h2>
+    <newsflash-feed
+      class="amber"
+      src="/mock-feed.json"
+      layout="cards"
+      theme="matrix"
+      columns="3"
+      limit="3"
+      sources
+    ></newsflash-feed>
 
     <h2>themed via CSS custom properties + ::part()</h2>
     <newsflash-feed
