@@ -50,15 +50,15 @@ jsDelivr and esm.sh serve straight from the registry, with no second publish
 step.
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.3/dist/newsflash-feed.standalone.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.5/dist/newsflash-feed.standalone.js" defer></script>
 <newsflash-feed src="/feed.xml" layout="list"></newsflash-feed>
 ```
 
 | CDN | URL |
 |---|---|
-| jsDelivr | `https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.3/dist/newsflash-feed.standalone.js` |
-| unpkg | `https://unpkg.com/@qlibr/newsflash-feed@0.1.3/dist/newsflash-feed.standalone.js` |
-| esm.sh | `https://esm.sh/@qlibr/newsflash-feed@0.1.3` (ESM, Lit resolved for you) |
+| jsDelivr | `https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.5/dist/newsflash-feed.standalone.js` |
+| unpkg | `https://unpkg.com/@qlibr/newsflash-feed@0.1.5/dist/newsflash-feed.standalone.js` |
+| esm.sh | `https://esm.sh/@qlibr/newsflash-feed@0.1.5` (ESM, Lit resolved for you) |
 
 Pin the **exact** version, not a range. CDNs cache ranges like `@0.1` for
 hours, so a range URL can keep serving the previous build after you publish a

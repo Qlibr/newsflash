@@ -4,7 +4,7 @@ Tags: rss, feed, atom, news, shortcode
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.4
+Stable tag: 0.1.5
 License: MIT
 License URI: https://opensource.org/license/mit
 
@@ -173,6 +173,13 @@ GPLv2-compatible license. The bundle includes Lit, which is BSD-3-Clause.
 
 == Changelog ==
 
+= 0.1.5 =
+* New `theme="matrix"` — renders the feed as a dot-matrix LED sign. Paired with
+  `layout="ticker"` the crawl steps from lamp to lamp, the heading becomes the
+  fixed plate at the head of the sign, and the date rides inline; other layouts
+  get the phosphor palette without the lamp mesh.
+* Recolour the whole sign with one custom property, `--nf-matrix-on`.
+
 = 0.1.4 =
 * Security: close the DNS-rebinding window on server-side feed fetches by
   pinning each request to the exact address it validated (CURLOPT_RESOLVE), so
@@ -193,6 +200,9 @@ GPLv2-compatible license. The bundle includes Lit, which is BSD-3-Clause.
   the request is made.
 
 == Upgrade Notice ==
+
+= 0.1.5 =
+Adds a dot-matrix LED sign theme. No changes to existing layouts or themes.
 
 = 0.1.4 =
 Security hardening for the server-side feed fetcher: closes a DNS-rebinding
