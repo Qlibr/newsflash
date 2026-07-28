@@ -35,3 +35,25 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - run: npm test
+
+  php:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The plugin's floor is PHP 7.4, but PHPUnit 11 requires 8.3+, so the
+      # suite runs on a modern PHP. The code under test is plain 7.4-compatible
+      # PHP; a matrix that also lints against 7.4 could be added later.
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Install dependencies
+        working-directory: wordpress
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run PHPUnit
+        working-directory: wordpress
+        run: composer test

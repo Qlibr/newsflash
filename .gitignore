@@ -2,6 +2,9 @@ node_modules/
 dist/
 dist-wp/
 coverage/
+vendor/
+*.phar
+.phpunit.result.cache
 wordpress/newsflash-rss/assets/
 .env
 *.log
