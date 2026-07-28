@@ -11,7 +11,7 @@ The three files are the JSFiddle panels:
 Plus one external resource, the component itself:
 
 ```
-https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.1/dist/newsflash-feed.standalone.js
+https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.3/dist/newsflash-feed.standalone.js
 ```
 
 The demo renders from an inlined JSON island, so the fiddle works with no
