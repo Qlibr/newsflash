@@ -5,8 +5,8 @@ Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 0.1.4
-License: GPLv2 or later
-License URI: https://www.gnu.org/licenses/gpl-2.0.html
+License: MIT
+License URI: https://opensource.org/license/mit
 
 Render any RSS or Atom feed in five themable layouts with one shortcode. Server-rendered by default, so feeds are visible to crawlers.
 
@@ -168,8 +168,8 @@ into this plugin's `assets/` directory. A source map is shipped alongside the
 bundle, so the original sources are also readable directly in a browser's
 developer tools.
 
-The bundle includes Lit (BSD-3-Clause). The plugin as distributed is
-GPLv2-or-later; the component's own source is MIT, which is compatible.
+The plugin is MIT licensed, which the directory accepts as a
+GPLv2-compatible license. The bundle includes Lit, which is BSD-3-Clause.
 
 == Changelog ==
 

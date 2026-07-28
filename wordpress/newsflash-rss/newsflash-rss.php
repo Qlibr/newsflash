@@ -8,8 +8,8 @@
  * Requires PHP:      7.4
  * Author:            Qlibr BV
  * Author URI:        https://github.com/Qlibr
- * License:           GPL-2.0-or-later
- * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+ * License:           MIT
+ * License URI:       https://opensource.org/license/mit
  * Text Domain:       newsflash-rss
  *
  * @package Newsflash
