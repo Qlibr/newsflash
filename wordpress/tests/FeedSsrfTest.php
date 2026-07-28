@@ -96,4 +96,16 @@ final class FeedSsrfTest extends TestCase {
 			$this->pins_for( 'https://example.com:8443/feed.xml', array( '203.0.113.7' ) )
 		);
 	}
+
+	/**
+	 * An IP-literal host has no name to rebind, so it produces no pin (which
+	 * also avoids a malformed CURLOPT_RESOLVE key for IPv6 literals).
+	 */
+	public function test_ip_literal_hosts_are_not_pinned(): void {
+		$this->assertSame( array(), $this->pins_for( 'https://8.8.8.8/feed.xml', array( '8.8.8.8' ) ) );
+		$this->assertSame(
+			array(),
+			$this->pins_for( 'http://[2001:db8::1]/feed.xml', array( '2001:db8::1' ) )
+		);
+	}
 }

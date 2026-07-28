@@ -149,11 +149,20 @@ class Newsflash_Feed {
 	 * Build the CURLOPT_RESOLVE entry that pins a URL's host to the exact
 	 * addresses validate() approved, keyed by "host:port".
 	 *
+	 * A host that is already an IP literal is skipped: there is no name to
+	 * rebind, and an IPv6 literal would produce a malformed "host:port" key.
+	 *
 	 * @param string   $url
 	 * @param string[] $addresses Vetted addresses from validate().
-	 * @return array<string,string> Map of "host:port" => comma-joined addresses.
+	 * @return array<string,string> Map of "host:port" => comma-joined addresses,
+	 *                              empty when the host needs no pin.
 	 */
 	private static function pins_for( $url, array $addresses ) {
+		$host = trim( (string) wp_parse_url( $url, PHP_URL_HOST ), '[]' );
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return array();
+		}
+
 		return array( self::pin_key( $url ) => implode( ',', $addresses ) );
 	}
 
@@ -235,9 +244,12 @@ class Newsflash_Feed {
 		};
 
 		// Guard and pin *every* hop, not just the first. WP_Http_Curl disables
-		// cURL's own redirect following (it handles redirects in PHP), so both
-		// hooks below fire once per hop — the initial request and each redirect
-		// alike. That closes two holes at once:
+		// cURL's own redirect following and WordPress re-enters WP_Http::request()
+		// per redirect (long-standing behaviour across the 6.0+ this plugin
+		// supports), so both hooks below fire once per hop — the initial request
+		// and each redirect alike. The redirect gating rests on that; an
+		// end-to-end check belongs in a wp-env integration test. That closes two
+		// holes at once:
 		//
 		//   1. SSRF via redirect: a public feed could 302 to
 		//      http://169.254.169.254/. The pre_http_request gate re-validates
@@ -263,7 +275,9 @@ class Newsflash_Feed {
 					sprintf( __( 'Refusing to fetch %s.', 'newsflash-rss' ), $url )
 				);
 			}
-			$pins[ self::pin_key( $url ) ] = implode( ',', $addresses );
+			// Latest wins if a redirect chain revisits a host: it was just
+			// re-validated, so trust the fresh address over an earlier one.
+			$pins = array_merge( $pins, self::pins_for( $url, $addresses ) );
 			return $preempt;
 		};
 

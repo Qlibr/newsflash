@@ -21,9 +21,12 @@ export default {
   nodeResolve: true,
   coverage: true,
   coverageConfig: {
-    include: ['src/**/*.js'],
+    // styles.js is declarative CSS-in-template-literals, not logic worth gating.
+    include: ['src/format.js', 'src/newsflash-feed.js'],
     report: true,
     reportDir: 'coverage',
+    // A regression floor, comfortably below current coverage — not a target.
+    threshold: { statements: 85, branches: 85, functions: 85, lines: 85 },
   },
   browsers: [playwrightLauncher({ product: 'chromium', launchOptions })],
 };
