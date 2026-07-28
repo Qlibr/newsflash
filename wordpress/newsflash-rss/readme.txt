@@ -4,7 +4,7 @@ Tags: rss, feed, atom, news, shortcode
 Requires at least: 6.0
 Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 0.1.3
+Stable tag: 0.1.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -126,7 +126,8 @@ On top of that, every host is resolved and each resulting address is checked
 against the private *and* reserved IP ranges before any fetch.
 `wp_http_validate_url()` alone is not enough here: it blocks loopback and
 RFC1918 but permits 169.254.0.0/16, which is where cloud instance metadata
-lives.
+lives. The connection is then pinned to the vetted address so it cannot be
+DNS-rebound, and every redirect hop is validated the same way.
 
 If your site only ever renders feeds server-side, remove the route entirely:
 
@@ -172,6 +173,18 @@ GPLv2-or-later; the component's own source is MIT, which is compatible.
 
 == Changelog ==
 
+= 0.1.4 =
+* Security: close the DNS-rebinding window on server-side feed fetches by
+  pinning each request to the exact address it validated (CURLOPT_RESOLVE), so
+  a low-TTL record cannot rebind the host to an internal address after the
+  check.
+* Security: validate and pin every redirect hop, so a feed can no longer
+  redirect the server into a private or link-local address such as the cloud
+  instance metadata endpoint.
+* Refuse to fetch when the connection cannot be pinned (no cURL extension)
+  rather than fall through to an unpinnable transport; opt back in with the
+  `newsflash_require_pinned_transport` filter.
+
 = 0.1.3 =
 * First release in the WordPress plugin directory.
 * Server-side (`inline`) rendering with an optional signed REST proxy.
@@ -180,6 +193,11 @@ GPLv2-or-later; the component's own source is MIT, which is compatible.
   the request is made.
 
 == Upgrade Notice ==
+
+= 0.1.4 =
+Security hardening for the server-side feed fetcher: closes a DNS-rebinding
+window and blocks redirect-based SSRF into internal addresses. Recommended for
+all sites.
 
 = 0.1.3 =
 First public release.

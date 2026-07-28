@@ -1,6 +1,6 @@
 {
   "name": "@qlibr/newsflash-feed",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A themable <newsflash-feed> web component that renders RSS/Atom feeds in five layouts. Works in plain HTML, WordPress and React.",
   "type": "module",
   "main": "./dist/newsflash-feed.js",
