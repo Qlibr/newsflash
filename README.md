@@ -652,9 +652,29 @@ checked against PHP's private **and reserved** ranges before fetching.
 RFC1918 but permits `169.254.0.0/16`, which is where cloud instance metadata
 (`169.254.169.254`) and ECS task credentials (`169.254.170.2`) live.
 
-This does not close the DNS-rebinding window: the name is resolved for the
-check and again by cURL for the request. Pinning would need a per-request
-`CURLOPT_RESOLVE`, which `WP_Http` does not expose.
+This check is applied to **every hop**, not just the URL on the page. Because
+WordPress follows redirects in PHP rather than inside cURL, the plugin gates
+each request through `pre_http_request`: a feed that `302`s to
+`http://169.254.169.254/` is re-resolved and refused just like a hostile `src`
+would be.
+
+Each approved hop is then **pinned** to the address that passed its check.
+Without pinning there is a DNS-rebinding window: the name is resolved once for
+the check and again by cURL when it connects, so a low-TTL record could rebind
+the host to an internal address in between. The plugin closes it by setting
+`CURLOPT_RESOLVE` on the handle through the `http_api_curl` action, so cURL
+connects to the vetted address instead of resolving the name a second time. The
+gate resolves once and the pin reuses that result, so the two cannot disagree.
+
+Pinning needs cURL. On the rare install without it, WordPress would fall back to
+its streams transport, which exposes no way to pin — so the plugin **refuses to
+fetch** there by default rather than run through an unpinnable path. A site that
+accepts the residual rebinding risk can opt back in; the redirect gate still
+applies:
+
+```php
+add_filter( 'newsflash_require_pinned_transport', '__return_false' );
+```
 
 ### Filters
 
@@ -671,6 +691,10 @@ add_filter( 'newsflash_shortcode_defaults', function ( $defaults ) {
 
 // Drop the REST endpoint.
 add_filter( 'newsflash_enable_rest', '__return_false' );
+
+// Allow feed fetches on installs without cURL, where the connection cannot be
+// pinned against DNS rebinding. Off by default; the redirect gate still applies.
+add_filter( 'newsflash_require_pinned_transport', '__return_false' );
 ```
 
 ### Publishing to the plugin directory
@@ -735,8 +759,11 @@ scrollable strip instead.
 - Dates are formatted from whatever string the feed supplied. Non-ISO formats
   (RFC 822, or rss2json's `"2026-07-27 06:18:10"`) rely on the browser's
   `Date` parsing and are interpreted as local time.
-- DNS rebinding can still defeat the proxy's SSRF check, as described under
-  [Security](#security).
+- The proxy validates and pins every request hop — including redirects — to
+  the address it vetted, closing the DNS-rebinding window and blocking
+  redirect-based SSRF. Pinning needs cURL; the non-cURL streams transport
+  cannot be pinned, so a fetch that would use it is refused by default (opt in
+  with `newsflash_require_pinned_transport`). See [Security](#security).
 
 ---
 

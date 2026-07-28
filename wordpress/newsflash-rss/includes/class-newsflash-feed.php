@@ -32,8 +32,11 @@ class Newsflash_Feed {
 			return new WP_Error( 'newsflash_no_url', __( 'No feed URL given.', 'newsflash-rss' ) );
 		}
 
+		// Reject an unfetchable URL up front with a clear error. fetch() then
+		// re-checks and pins every hop (initial request and each redirect), so
+		// this is the friendly early exit, not the security boundary.
 		foreach ( $urls as $url ) {
-			if ( ! self::is_fetchable( $url ) ) {
+			if ( false === self::validate( $url ) ) {
 				return new WP_Error(
 					'newsflash_invalid_url',
 					/* translators: %s: the rejected URL. */
@@ -74,7 +77,8 @@ class Newsflash_Feed {
 	}
 
 	/**
-	 * Whether a URL is safe for the server to fetch.
+	 * Validate a URL for server-side fetching and return the addresses it was
+	 * approved for, or false if it must not be fetched.
 	 *
 	 * wp_http_validate_url() rejects non-http(s) schemes, loopback and the
 	 * RFC1918 private ranges, but it permits 169.254.0.0/16 — the link-local
@@ -85,14 +89,16 @@ class Newsflash_Feed {
 	 * service. Every resolved address is therefore checked against PHP's
 	 * private *and* reserved ranges, which do cover link-local.
 	 *
-	 * Note this cannot close the DNS-rebinding window: the name is resolved
-	 * here and again by cURL when the request is made. Pinning would require
-	 * a per-request CURLOPT_RESOLVE, which WP_Http does not expose.
+	 * The returned addresses are handed to fetch(), which pins the connection
+	 * to them (CURLOPT_RESOLVE). That is what closes the DNS-rebinding window:
+	 * without pinning, cURL would resolve the name a second time when it
+	 * connects, letting a low-TTL record rebind to an internal address between
+	 * this check and the request.
 	 *
 	 * @param string $url
-	 * @return bool
+	 * @return string[]|false The vetted addresses, or false when unfetchable.
 	 */
-	private static function is_fetchable( $url ) {
+	private static function validate( $url ) {
 		if ( ! wp_http_validate_url( $url ) ) {
 			return false;
 		}
@@ -118,7 +124,46 @@ class Newsflash_Feed {
 			}
 		}
 
-		return true;
+		return $addresses;
+	}
+
+	/**
+	 * The "host:port" cURL uses to key a connection, defaulting the port from
+	 * the scheme. Shared by the pin gate and the pin setter so they agree.
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	private static function pin_key( $url ) {
+		$host = trim( (string) wp_parse_url( $url, PHP_URL_HOST ), '[]' );
+		$port = (int) wp_parse_url( $url, PHP_URL_PORT );
+		if ( ! $port ) {
+			$scheme = strtolower( (string) wp_parse_url( $url, PHP_URL_SCHEME ) );
+			$port   = 'https' === $scheme ? 443 : 80;
+		}
+
+		return $host . ':' . $port;
+	}
+
+	/**
+	 * Build the CURLOPT_RESOLVE entry that pins a URL's host to the exact
+	 * addresses validate() approved, keyed by "host:port".
+	 *
+	 * A host that is already an IP literal is skipped: there is no name to
+	 * rebind, and an IPv6 literal would produce a malformed "host:port" key.
+	 *
+	 * @param string   $url
+	 * @param string[] $addresses Vetted addresses from validate().
+	 * @return array<string,string> Map of "host:port" => comma-joined addresses,
+	 *                              empty when the host needs no pin.
+	 */
+	private static function pins_for( $url, array $addresses ) {
+		$host = trim( (string) wp_parse_url( $url, PHP_URL_HOST ), '[]' );
+		if ( filter_var( $host, FILTER_VALIDATE_IP ) ) {
+			return array();
+		}
+
+		return array( self::pin_key( $url ) => implode( ',', $addresses ) );
 	}
 
 	/**
@@ -160,6 +205,21 @@ class Newsflash_Feed {
 	}
 
 	/**
+	 * Whether this install can pin a connection to a vetted address. The pin
+	 * rides CURLOPT_RESOLVE via the http_api_curl action, so it needs a usable
+	 * cURL extension; WordPress's streams fallback exposes no equivalent.
+	 *
+	 * @return bool
+	 */
+	private static function can_pin() {
+		$available = function_exists( 'curl_init' )
+			&& function_exists( 'curl_exec' )
+			&& defined( 'CURLOPT_RESOLVE' );
+
+		return (bool) apply_filters( 'newsflash_curl_pinning_available', $available );
+	}
+
+	/**
 	 * Wrap fetch_feed() so our cache lifetime does not leak onto every other
 	 * feed the site fetches.
 	 *
@@ -167,12 +227,76 @@ class Newsflash_Feed {
 	 * @return SimplePie|WP_Error
 	 */
 	private static function fetch( $urls ) {
+		// The pin that closes the DNS-rebinding window needs cURL. Without it the
+		// streams transport would still re-resolve the host when it connects, so
+		// refuse rather than fetch through an unpinnable path. A site that
+		// accepts that residual can opt back in; the redirect gate below still
+		// applies either way.
+		if ( ! self::can_pin() && apply_filters( 'newsflash_require_pinned_transport', true ) ) {
+			return new WP_Error(
+				'newsflash_unpinnable_transport',
+				__( 'Refusing to fetch: cURL is required to pin the connection against DNS rebinding.', 'newsflash-rss' )
+			);
+		}
+
 		$lifetime = static function () {
 			return (int) apply_filters( 'newsflash_cache_lifetime', self::CACHE_LIFETIME );
 		};
 
+		// Guard and pin *every* hop, not just the first. WP_Http_Curl disables
+		// cURL's own redirect following and WordPress re-enters WP_Http::request()
+		// per redirect (long-standing behaviour across the 6.0+ this plugin
+		// supports), so both hooks below fire once per hop — the initial request
+		// and each redirect alike. The redirect gating rests on that; an
+		// end-to-end check belongs in a wp-env integration test. That closes two
+		// holes at once:
+		//
+		//   1. SSRF via redirect: a public feed could 302 to
+		//      http://169.254.169.254/. The pre_http_request gate re-validates
+		//      the host about to be contacted and blocks it if it resolves to a
+		//      private or reserved address.
+		//   2. DNS rebinding: without pinning, cURL resolves the host a second
+		//      time when it connects, so a low-TTL record could rebind it to an
+		//      internal address after validate() approved it. Pinning the handle
+		//      to the just-vetted address (CURLOPT_RESOLVE) means no second
+		//      lookup happens.
+		//
+		// The gate resolves once and stashes the vetted addresses; the pin setter
+		// reads that stash, so there is a single lookup per hop and the two hooks
+		// cannot disagree. Covers the cURL transport every mainstream install uses.
+		$pins = array();
+
+		$gate = static function ( $preempt, $args, $url ) use ( &$pins ) {
+			$addresses = self::validate( $url );
+			if ( false === $addresses ) {
+				return new WP_Error(
+					'newsflash_blocked_host',
+					/* translators: %s: the rejected URL. */
+					sprintf( __( 'Refusing to fetch %s.', 'newsflash-rss' ), $url )
+				);
+			}
+			// Latest wins if a redirect chain revisits a host: it was just
+			// re-validated, so trust the fresh address over an earlier one.
+			$pins = array_merge( $pins, self::pins_for( $url, $addresses ) );
+			return $preempt;
+		};
+
+		$pin = static function ( $handle, $args, $url ) use ( &$pins ) {
+			if ( ! function_exists( 'curl_setopt' ) ) {
+				return;
+			}
+			$key = self::pin_key( $url );
+			if ( isset( $pins[ $key ] ) ) {
+				curl_setopt( $handle, CURLOPT_RESOLVE, array( $key . ':' . $pins[ $key ] ) );
+			}
+		};
+
 		add_filter( 'wp_feed_cache_transient_lifetime', $lifetime, 20 );
+		add_filter( 'pre_http_request', $gate, 10, 3 );
+		add_action( 'http_api_curl', $pin, 10, 3 );
 		$feed = fetch_feed( $urls );
+		remove_action( 'http_api_curl', $pin, 10 );
+		remove_filter( 'pre_http_request', $gate, 10 );
 		remove_filter( 'wp_feed_cache_transient_lifetime', $lifetime, 20 );
 
 		return $feed;

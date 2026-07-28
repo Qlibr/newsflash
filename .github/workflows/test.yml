@@ -1,0 +1,82 @@
+# Runs the web component test suite on every push and pull request.
+#
+# The existing publish.yml only fires on release, so nothing checked the code
+# before this. Tests run in a real Chromium via @web/test-runner (the component
+# relies on browser DOMParser/XML, custom elements and IntersectionObserver, so
+# jsdom is not a faithful stand-in).
+
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # web-test-runner.config.js only points at a pre-installed browser inside
+      # the dev sandbox; in CI it falls back to Playwright's own Chromium.
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - run: npm test
+
+  php:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The plugin's floor is PHP 7.4, but PHPUnit 11 requires 8.3+, so the
+      # suite runs on a modern PHP. The plugin's own 7.4 compatibility is guarded
+      # separately: the compat step below (PHPCompatibility, targeting 7.4) and
+      # the php-lint job (a real-7.4 parse check).
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+
+      - name: Install dependencies
+        working-directory: wordpress
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run PHPUnit
+        working-directory: wordpress
+        run: composer test
+
+      # PHPCompatibility analyses the shipped plugin for its declared 7.4 floor.
+      # It runs on this modern PHP but targets 7.4 via testVersion, flagging any
+      # 8.x-only function, syntax or operator that would break there.
+      - name: Check PHP 7.4 compatibility
+        working-directory: wordpress
+        run: composer compat
+
+  # A cheap, independent parse check on real PHP 7.4 — a backstop for anything a
+  # static analyser might tokenize leniently and miss.
+  php-lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.4'
+
+      - name: Lint plugin PHP against 7.4
+        run: find wordpress/newsflash-rss -name '*.php' -print0 | xargs -0 -n1 -P4 php -l
