@@ -3,7 +3,7 @@ import { LitElement } from 'lit';
 export declare const LAYOUTS: readonly ['list', 'grid', 'cards', 'magazine', 'ticker'];
 
 export type NewsflashLayout = (typeof LAYOUTS)[number];
-export type NewsflashTheme = 'auto' | 'light' | 'dark';
+export type NewsflashTheme = 'auto' | 'light' | 'dark' | 'matrix';
 export type NewsflashDateStyle = 'relative' | 'absolute';
 
 /** One feed item after normalization. */
@@ -32,6 +32,7 @@ export declare class NewsflashFeed extends LitElement {
   /** Proxy base used with `feed`. */
   endpoint: string;
   layout: NewsflashLayout;
+  /** `matrix` is a dot-matrix LED sign, not a light/dark pair. */
   theme: NewsflashTheme;
   limit: number;
   columns: number;

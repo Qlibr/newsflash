@@ -22,6 +22,9 @@ class Newsflash_Shortcode {
 	/** Layouts the component knows how to render. */
 	const LAYOUTS = array( 'list', 'grid', 'cards', 'magazine', 'ticker' );
 
+	/** Schemes the component knows how to paint. `matrix` is an LED sign. */
+	const THEMES = array( 'auto', 'light', 'dark', 'matrix' );
+
 	public static function init() {
 		add_shortcode( self::TAG, array( __CLASS__, 'render' ) );
 	}
@@ -77,7 +80,7 @@ class Newsflash_Shortcode {
 
 		$attributes = array(
 			'layout'     => in_array( $atts['layout'], self::LAYOUTS, true ) ? $atts['layout'] : 'grid',
-			'theme'      => in_array( $atts['theme'], array( 'auto', 'light', 'dark' ), true ) ? $atts['theme'] : 'auto',
+			'theme'      => in_array( $atts['theme'], self::THEMES, true ) ? $atts['theme'] : 'auto',
 			'limit'      => (string) $limit,
 			'columns'    => (string) max( 1, min( 6, (int) $atts['columns'] ) ),
 			'heading'    => (string) $atts['heading'],

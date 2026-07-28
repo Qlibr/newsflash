@@ -1,7 +1,7 @@
 import { LitElement, html, nothing } from 'lit';
 import { classMap } from 'lit/directives/class-map.js';
 import { styleMap } from 'lit/directives/style-map.js';
-import { baseStyles, layoutStyles } from './styles.js';
+import { baseStyles, layoutStyles, matrixStyles } from './styles.js';
 import {
   boolAttr,
   formatDate,
@@ -34,7 +34,7 @@ export const LAYOUTS = ['list', 'grid', 'cards', 'magazine', 'ticker'];
  * @fires newsflash-error {{ error: Error }} when loading or parsing fails
  */
 export class NewsflashFeed extends LitElement {
-  static styles = [baseStyles, layoutStyles];
+  static styles = [baseStyles, layoutStyles, matrixStyles];
 
   static properties = {
     /** Fully-formed JSON endpoint. Takes precedence over `feed`. */
@@ -45,7 +45,11 @@ export class NewsflashFeed extends LitElement {
     endpoint: { type: String },
     /** One of LAYOUTS. */
     layout: { type: String, reflect: true },
-    /** Colour scheme: `auto` (default), `light` or `dark`. */
+    /**
+     * Colour scheme: `auto` (default), `light` or `dark`, plus `matrix` — a
+     * dot-matrix LED sign, which is a scheme of its own rather than a
+     * light/dark pair.
+     */
     theme: { type: String, reflect: true },
     limit: { type: Number },
     columns: { type: Number },

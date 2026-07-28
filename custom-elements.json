@@ -45,9 +45,9 @@
             },
             {
               "name": "theme",
-              "type": { "text": "'auto' | 'light' | 'dark'" },
+              "type": { "text": "'auto' | 'light' | 'dark' | 'matrix'" },
               "default": "'auto'",
-              "description": "Colour scheme. `auto` follows prefers-color-scheme. Reflected.",
+              "description": "Colour scheme. `auto` follows prefers-color-scheme; `matrix` is a dot-matrix LED sign. Reflected.",
               "fieldName": "theme"
             },
             {

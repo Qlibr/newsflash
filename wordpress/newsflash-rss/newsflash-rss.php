@@ -3,7 +3,7 @@
  * Plugin Name:       Newsflash RSS
  * Plugin URI:        https://github.com/Qlibr/newsflash
  * Description:       Renders RSS/Atom feeds in several themable layouts using the &lt;newsflash-feed&gt; web component. Adds the [newsflash] shortcode and a signed, caching REST proxy.
- * Version:           0.1.4
+ * Version:           0.1.5
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Qlibr BV
@@ -17,7 +17,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'NEWSFLASH_VERSION', '0.1.4' );
+define( 'NEWSFLASH_VERSION', '0.1.5' );
 define( 'NEWSFLASH_FILE', __FILE__ );
 define( 'NEWSFLASH_PATH', plugin_dir_path( __FILE__ ) );
 define( 'NEWSFLASH_URL', plugin_dir_url( __FILE__ ) );

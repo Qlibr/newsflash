@@ -17,7 +17,7 @@
       previous build; exact versions are immutable and available immediately.
     -->
     <script
-      src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.3/dist/newsflash-feed.standalone.js"
+      src="https://cdn.jsdelivr.net/npm/@qlibr/newsflash-feed@0.1.5/dist/newsflash-feed.standalone.js"
       defer
     ></script>
 
@@ -47,6 +47,10 @@
         --nf-accent: #b8235a;
         --nf-radius: 2px;
         --nf-font: Georgia, serif;
+      }
+      /* One property recolours the whole sign. */
+      newsflash-feed.amber {
+        --nf-matrix-on: #ffb020;
       }
     </style>
   </head>
@@ -84,6 +88,28 @@
       layout="ticker"
       limit="10"
       images="false"
+    ></newsflash-feed>
+
+    <h2>theme="matrix" — layout="ticker"</h2>
+    <newsflash-feed
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="ticker"
+      theme="matrix"
+      heading="Live"
+      limit="10"
+      images="false"
+    ></newsflash-feed>
+
+    <h2>theme="matrix" — the same sign in amber, on layout="cards"</h2>
+    <newsflash-feed
+      class="amber"
+      src="https://api.allorigins.win/raw?url=https%3A%2F%2Fhnrss.org%2Ffrontpage"
+      layout="cards"
+      theme="matrix"
+      columns="3"
+      limit="3"
+      images="false"
+      sources
     ></newsflash-feed>
   </body>
 </html>
