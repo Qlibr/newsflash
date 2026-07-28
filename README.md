@@ -652,9 +652,14 @@ checked against PHP's private **and reserved** ranges before fetching.
 RFC1918 but permits `169.254.0.0/16`, which is where cloud instance metadata
 (`169.254.169.254`) and ECS task credentials (`169.254.170.2`) live.
 
-This does not close the DNS-rebinding window: the name is resolved for the
-check and again by cURL for the request. Pinning would need a per-request
-`CURLOPT_RESOLVE`, which `WP_Http` does not expose.
+The connection is then **pinned** to the addresses that passed that check.
+Without pinning there is a DNS-rebinding window: the name is resolved once for
+the check and again by cURL for the request, so a low-TTL record could rebind
+the host to an internal address in between. The plugin closes it by setting
+`CURLOPT_RESOLVE` on the cURL handle through the `http_api_curl` action, so the
+request connects to the vetted address instead of resolving the name a second
+time. This covers the cURL transport that every mainstream install uses; the
+host of a cross-host *redirect* is still resolved by cURL and is not pinned.
 
 ### Filters
 
@@ -735,8 +740,10 @@ scrollable strip instead.
 - Dates are formatted from whatever string the feed supplied. Non-ISO formats
   (RFC 822, or rss2json's `"2026-07-27 06:18:10"`) rely on the browser's
   `Date` parsing and are interpreted as local time.
-- DNS rebinding can still defeat the proxy's SSRF check, as described under
-  [Security](#security).
+- The proxy pins each fetch to the address it validated, closing the
+  DNS-rebinding window on the request itself. A cross-host redirect is the
+  residual case: cURL resolves the redirect target's host and that hop is not
+  pinned. See [Security](#security).
 
 ---
 

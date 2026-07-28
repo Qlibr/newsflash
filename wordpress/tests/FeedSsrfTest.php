@@ -24,15 +24,24 @@ final class FeedSsrfTest extends TestCase {
 		$GLOBALS['newsflash_wp_validate_url'] = true;
 	}
 
-	private function is_fetchable( string $url ): bool {
-		$method = new ReflectionMethod( Newsflash_Feed::class, 'is_fetchable' );
+	/** @return string[]|false */
+	private function validate( string $url ) {
+		$method = new ReflectionMethod( Newsflash_Feed::class, 'validate' );
 		$method->setAccessible( true );
-		return (bool) $method->invoke( null, $url );
+		return $method->invoke( null, $url );
 	}
 
-	public function test_allows_a_public_address(): void {
-		$this->assertTrue( $this->is_fetchable( 'http://8.8.8.8/feed.xml' ) );
-		$this->assertTrue( $this->is_fetchable( 'https://93.184.216.34/rss' ) );
+	private function pins_for( string $url, array $addresses ): array {
+		$method = new ReflectionMethod( Newsflash_Feed::class, 'pins_for' );
+		$method->setAccessible( true );
+		return $method->invoke( null, $url, $addresses );
+	}
+
+	public function test_allows_a_public_address_and_returns_it(): void {
+		// A public IP-literal host resolves to itself and is approved, so the
+		// address is available to pin the fetch to.
+		$this->assertSame( array( '8.8.8.8' ), $this->validate( 'http://8.8.8.8/feed.xml' ) );
+		$this->assertSame( array( '93.184.216.34' ), $this->validate( 'https://93.184.216.34/rss' ) );
 	}
 
 	/**
@@ -40,31 +49,51 @@ final class FeedSsrfTest extends TestCase {
 	 * endpoint that wp_http_validate_url() alone would let through.
 	 */
 	public function test_rejects_link_local_metadata_endpoints(): void {
-		$this->assertFalse( $this->is_fetchable( 'http://169.254.169.254/latest/meta-data/' ) );
-		$this->assertFalse( $this->is_fetchable( 'http://169.254.170.2/v2/credentials' ) );
+		$this->assertFalse( $this->validate( 'http://169.254.169.254/latest/meta-data/' ) );
+		$this->assertFalse( $this->validate( 'http://169.254.170.2/v2/credentials' ) );
 	}
 
 	public function test_rejects_loopback(): void {
-		$this->assertFalse( $this->is_fetchable( 'http://127.0.0.1/feed' ) );
-		$this->assertFalse( $this->is_fetchable( 'http://[::1]/feed' ) );
+		$this->assertFalse( $this->validate( 'http://127.0.0.1/feed' ) );
+		$this->assertFalse( $this->validate( 'http://[::1]/feed' ) );
 	}
 
 	public function test_rejects_rfc1918_private_ranges(): void {
-		$this->assertFalse( $this->is_fetchable( 'http://10.0.0.1/feed' ) );
-		$this->assertFalse( $this->is_fetchable( 'http://172.16.0.1/feed' ) );
-		$this->assertFalse( $this->is_fetchable( 'http://192.168.1.1/feed' ) );
+		$this->assertFalse( $this->validate( 'http://10.0.0.1/feed' ) );
+		$this->assertFalse( $this->validate( 'http://172.16.0.1/feed' ) );
+		$this->assertFalse( $this->validate( 'http://192.168.1.1/feed' ) );
 	}
 
 	public function test_rejects_when_wp_validator_refuses(): void {
 		// Even a public address is refused if wp_http_validate_url() said no
 		// (non-http scheme, etc.).
 		$GLOBALS['newsflash_wp_validate_url'] = false;
-		$this->assertFalse( $this->is_fetchable( 'http://8.8.8.8/feed.xml' ) );
+		$this->assertFalse( $this->validate( 'http://8.8.8.8/feed.xml' ) );
 	}
 
 	public function test_resolve_returns_ip_literals_unchanged(): void {
 		$method = new ReflectionMethod( Newsflash_Feed::class, 'resolve' );
 		$method->setAccessible( true );
 		$this->assertSame( array( '93.184.216.34' ), $method->invoke( null, '93.184.216.34' ) );
+	}
+
+	/**
+	 * The pin passed to CURLOPT_RESOLVE must key on host:port and point at the
+	 * vetted address, so cURL connects there rather than re-resolving the name.
+	 */
+	public function test_pins_host_and_port_to_the_vetted_address(): void {
+		$this->assertSame(
+			array( 'example.com:443' => '203.0.113.7' ),
+			$this->pins_for( 'https://example.com/feed.xml', array( '203.0.113.7' ) )
+		);
+		$this->assertSame(
+			array( 'example.com:80' => '203.0.113.7,203.0.113.8' ),
+			$this->pins_for( 'http://example.com/feed.xml', array( '203.0.113.7', '203.0.113.8' ) )
+		);
+		// An explicit port is preserved.
+		$this->assertSame(
+			array( 'example.com:8443' => '203.0.113.7' ),
+			$this->pins_for( 'https://example.com:8443/feed.xml', array( '203.0.113.7' ) )
+		);
 	}
 }
