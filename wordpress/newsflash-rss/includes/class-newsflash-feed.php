@@ -196,6 +196,21 @@ class Newsflash_Feed {
 	}
 
 	/**
+	 * Whether this install can pin a connection to a vetted address. The pin
+	 * rides CURLOPT_RESOLVE via the http_api_curl action, so it needs a usable
+	 * cURL extension; WordPress's streams fallback exposes no equivalent.
+	 *
+	 * @return bool
+	 */
+	private static function can_pin() {
+		$available = function_exists( 'curl_init' )
+			&& function_exists( 'curl_exec' )
+			&& defined( 'CURLOPT_RESOLVE' );
+
+		return (bool) apply_filters( 'newsflash_curl_pinning_available', $available );
+	}
+
+	/**
 	 * Wrap fetch_feed() so our cache lifetime does not leak onto every other
 	 * feed the site fetches.
 	 *
@@ -203,6 +218,18 @@ class Newsflash_Feed {
 	 * @return SimplePie|WP_Error
 	 */
 	private static function fetch( $urls ) {
+		// The pin that closes the DNS-rebinding window needs cURL. Without it the
+		// streams transport would still re-resolve the host when it connects, so
+		// refuse rather than fetch through an unpinnable path. A site that
+		// accepts that residual can opt back in; the redirect gate below still
+		// applies either way.
+		if ( ! self::can_pin() && apply_filters( 'newsflash_require_pinned_transport', true ) ) {
+			return new WP_Error(
+				'newsflash_unpinnable_transport',
+				__( 'Refusing to fetch: cURL is required to pin the connection against DNS rebinding.', 'newsflash-rss' )
+			);
+		}
+
 		$lifetime = static function () {
 			return (int) apply_filters( 'newsflash_cache_lifetime', self::CACHE_LIFETIME );
 		};

@@ -665,8 +665,16 @@ the host to an internal address in between. The plugin closes it by setting
 `CURLOPT_RESOLVE` on the handle through the `http_api_curl` action, so cURL
 connects to the vetted address instead of resolving the name a second time. The
 gate resolves once and the pin reuses that result, so the two cannot disagree.
-This covers the cURL transport every mainstream install uses; the streams
-fallback (`allow_url_fopen`, no cURL extension) is not pinned.
+
+Pinning needs cURL. On the rare install without it, WordPress would fall back to
+its streams transport, which exposes no way to pin — so the plugin **refuses to
+fetch** there by default rather than run through an unpinnable path. A site that
+accepts the residual rebinding risk can opt back in; the redirect gate still
+applies:
+
+```php
+add_filter( 'newsflash_require_pinned_transport', '__return_false' );
+```
 
 ### Filters
 
@@ -683,6 +691,10 @@ add_filter( 'newsflash_shortcode_defaults', function ( $defaults ) {
 
 // Drop the REST endpoint.
 add_filter( 'newsflash_enable_rest', '__return_false' );
+
+// Allow feed fetches on installs without cURL, where the connection cannot be
+// pinned against DNS rebinding. Off by default; the redirect gate still applies.
+add_filter( 'newsflash_require_pinned_transport', '__return_false' );
 ```
 
 ### Publishing to the plugin directory
@@ -749,8 +761,9 @@ scrollable strip instead.
   `Date` parsing and are interpreted as local time.
 - The proxy validates and pins every request hop — including redirects — to
   the address it vetted, closing the DNS-rebinding window and blocking
-  redirect-based SSRF. The one uncovered path is the non-cURL streams
-  transport, which cannot be pinned. See [Security](#security).
+  redirect-based SSRF. Pinning needs cURL; the non-cURL streams transport
+  cannot be pinned, so a fetch that would use it is refused by default (opt in
+  with `newsflash_require_pinned_transport`). See [Security](#security).
 
 ---
 

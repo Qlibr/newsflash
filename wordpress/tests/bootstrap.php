@@ -36,6 +36,9 @@ function __( $text, $domain = 'default' ) {
 }
 
 function apply_filters( $tag, $value ) {
+	foreach ( $GLOBALS['newsflash_hooks'][ $tag ] ?? array() as $callback ) {
+		$value = $callback( $value );
+	}
 	return $value;
 }
 

@@ -91,4 +91,34 @@ final class FeedRedirectPinTest extends TestCase {
 		$this->assertEmpty( array_filter( $GLOBALS['newsflash_hooks']['pre_http_request'] ?? array() ) );
 		$this->assertEmpty( array_filter( $GLOBALS['newsflash_hooks']['http_api_curl'] ?? array() ) );
 	}
+
+	/**
+	 * When the connection cannot be pinned (no usable cURL), the fetch is
+	 * refused by default rather than run through the unpinnable streams
+	 * transport, which would leave a DNS-rebinding window.
+	 */
+	public function test_refuses_to_fetch_when_pinning_is_unavailable(): void {
+		add_filter( 'newsflash_curl_pinning_available', static fn() => false );
+
+		$method = new ReflectionMethod( Newsflash_Feed::class, 'fetch' );
+		$method->setAccessible( true );
+		$result = $method->invoke( null, 'https://8.8.8.8/feed.xml' );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'newsflash_unpinnable_transport', $result->get_error_code() );
+	}
+
+	/**
+	 * A site may opt back in to fetching without a pin. Redirect-based SSRF is
+	 * still blocked by the gate even then — only the rebinding pin is forgone.
+	 */
+	public function test_opt_in_allows_an_unpinned_fetch_but_still_gates(): void {
+		add_filter( 'newsflash_curl_pinning_available', static fn() => false );
+		add_filter( 'newsflash_require_pinned_transport', static fn() => false );
+
+		$this->assertSame(
+			array( 'allowed', 'blocked' ),
+			$this->run_chain( array( 'https://8.8.8.8/feed.xml', 'http://169.254.169.254/' ) )
+		);
+	}
 }
