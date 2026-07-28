@@ -1,0 +1,37 @@
+# Runs the web component test suite on every push and pull request.
+#
+# The existing publish.yml only fires on release, so nothing checked the code
+# before this. Tests run in a real Chromium via @web/test-runner (the component
+# relies on browser DOMParser/XML, custom elements and IntersectionObserver, so
+# jsdom is not a faithful stand-in).
+
+name: Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # web-test-runner.config.js only points at a pre-installed browser inside
+      # the dev sandbox; in CI it falls back to Playwright's own Chromium.
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+
+      - run: npm test
