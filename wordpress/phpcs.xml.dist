@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<ruleset name="newsflash-php74">
+  <description>Checks the shipped plugin for PHP 7.4 compatibility.</description>
+
+  <!-- Only the plugin ships; tests run on PHP 8.3 and are excluded. -->
+  <file>newsflash-rss</file>
+  <arg name="extensions" value="php"/>
+  <arg value="p"/>
+
+  <!-- The plugin's declared floor (Requires PHP: 7.4). -->
+  <config name="testVersion" value="7.4-"/>
+
+  <!-- Standard is discovered via installed_paths, set by the `compat` script /
+       the CI step before phpcs runs (avoids needing the composer installer
+       plugin). -->
+  <rule ref="PHPCompatibility"/>
+</ruleset>

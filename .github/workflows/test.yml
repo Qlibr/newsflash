@@ -58,9 +58,15 @@ jobs:
         working-directory: wordpress
         run: composer test
 
-  # The suite needs PHP 8.3, so lint the shipped plugin against its actual 7.4
-  # floor to catch anything that would fail to parse there (match, nullsafe,
-  # enums, constructor promotion, …). Tests are excluded — they run on 8.3.
+      # PHPCompatibility analyses the shipped plugin for its declared 7.4 floor.
+      # It runs on this modern PHP but targets 7.4 via testVersion, flagging any
+      # 8.x-only function, syntax or operator that would break there.
+      - name: Check PHP 7.4 compatibility
+        working-directory: wordpress
+        run: composer compat
+
+  # A cheap, independent parse check on real PHP 7.4 — a backstop for anything a
+  # static analyser might tokenize leniently and miss.
   php-lint:
     runs-on: ubuntu-latest
 
