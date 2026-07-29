@@ -718,6 +718,29 @@ applies:
 add_filter( 'newsflash_require_pinned_transport', '__return_false' );
 ```
 
+#### The JSON is plain text, not escaped HTML
+
+`Newsflash_Feed::get()` strips tags and *then* decodes entities, so a feed item
+titled `&lt;script&gt;` comes back as the literal string `<script>`. That is
+deliberate — a title reading `AT&amp;T` should render as `AT&T`, not as its
+entity — and it is safe on both paths this plugin owns: the shortcode
+serialises with `JSON_HEX_TAG`, so nothing can break out of the JSON island,
+and the component renders every field as a text node.
+
+It is **not** safe if you put those strings into HTML yourself. Whether you
+call `Newsflash_Feed::get()` from a template or consume
+`/wp-json/newsflash/v1/feed` from another application, treat every field as
+untrusted text and escape it at the point of output:
+
+```php
+echo esc_html( $item['title'] );          // not: echo $item['title'];
+echo esc_url( $item['link'] );
+```
+
+The `link` and `image` fields have already been through `esc_url_raw()`, so
+their scheme is safe, but they still need `esc_url()` or `esc_attr()` when
+written into an attribute.
+
 ### Filters
 
 ```php
@@ -767,6 +790,12 @@ if ( ! is_wp_error( $data ) ) {
 }
 ```
 
+`JSON_HEX_TAG` is not optional here: item text is plain text rather than
+escaped HTML, so without it a feed containing `</script>` closes the JSON
+island. If you render `$data` as markup instead of handing it to the component,
+escape each field yourself — see [The JSON is plain text, not escaped
+HTML](#the-json-is-plain-text-not-escaped-html).
+
 ---
 
 ## Behaviour and limits
@@ -783,7 +812,10 @@ short red message (`part="status error"`, restyle it there) and fires
 **Escaping.** Titles, excerpts and source names are stripped to plain text
 before rendering, and only `http(s)` URLs are emitted for links and images.
 Feed content is never injected as HTML — a feed cannot inject script,
-`javascript:` URLs, or markup into your page.
+`javascript:` URLs, or markup into your page. That holds for anything the
+component renders; the WordPress plugin's JSON is plain text rather than
+escaped HTML, so code that renders it *without* the component has to escape it
+([why](#the-json-is-plain-text-not-escaped-html)).
 
 **Accessibility.** Items render as a real `<ul>`/`<li>` with `<h3>` titles and
 `<time datetime>`; the container carries `aria-busy` while loading; the
@@ -798,6 +830,12 @@ scrollable strip instead.
 
 - `author` is parsed and exposed in `newsflash-load` but never rendered; the
   meta line shows source and date only.
+- Item images are loaded straight from wherever the feed publisher hosts them —
+  nothing is proxied or cached. Text from a feed is inert, but an image URL is
+  still a request the publisher can see, carrying your visitors' IP and user
+  agent. `images="false"` drops them entirely; a CSP `img-src` rule bounds
+  where they may come from. Only `http(s)` URLs are ever emitted, so this is a
+  privacy consideration rather than an injection one.
 - Dates are formatted from whatever string the feed supplied. Non-ISO formats
   (RFC 822, or rss2json's `"2026-07-27 06:18:10"`) rely on the browser's
   `Date` parsing and are interpreted as local time.

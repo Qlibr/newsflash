@@ -133,6 +133,23 @@ If your site only ever renders feeds server-side, remove the route entirely:
 
 `add_filter( 'newsflash_enable_rest', '__return_false' );`
 
+= Can I use the feed data in my own code? =
+
+Yes. `Newsflash_Feed::get( $url, $limit )` returns the same array the shortcode
+renders, and the REST route returns it as JSON. One thing to know before you
+print any of it: item text is plain text, not escaped HTML. Tags are stripped
+and entities are then decoded, so a title reading `AT&amp;T` comes back as
+`AT&T` — and one reading `&lt;script&gt;` comes back as the literal characters
+`<script>`.
+
+That is safe on the two paths this plugin owns. The shortcode serialises with
+`JSON_HEX_TAG`, so nothing can break out of the JSON it embeds, and the web
+component renders every field as a text node rather than as markup. If you
+render those strings yourself, in a PHP template or in another application
+reading the REST route, escape them at the point of output:
+
+`echo esc_html( $item['title'] );`
+
 = The feed shows nothing =
 
 Only users who can edit posts see the reason, so check the page while logged
@@ -149,6 +166,14 @@ Yes, with plain CSS in your theme — see the CSS custom properties and
 
 No. The plugin sets no cookies, creates no database tables and stores no
 options. It only writes WordPress's own feed cache transients.
+
+Item thumbnails are worth knowing about, though. They are loaded straight from
+wherever the feed publisher hosts them, so that publisher sees your visitors'
+IP address and user agent, exactly as any other third-party image on the page
+would. Only `http(s)` image URLs are ever emitted, and a broken one removes its
+own container, but the request itself still leaves the visitor's browser. Turn
+thumbnails off with `images="false"` on the shortcode, or restrict where they
+may load from with a Content-Security-Policy `img-src` rule.
 
 == Screenshots ==
 
